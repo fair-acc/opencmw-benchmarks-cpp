@@ -19,6 +19,7 @@ macro(run_conan)
     fmt/7.1.3
     mp-units/0.7.0
     protobuf/3.17.1
+    capnproto/0.8.0
     flatbuffers/2.0.0
     flatc/1.12.0 # outputs deprecation warning, but should still be used for flatc: https://github.com/conan-io/conan-center-index/issues/4039
     benchmark/1.5.3

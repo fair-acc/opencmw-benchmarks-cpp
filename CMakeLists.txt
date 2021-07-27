@@ -41,10 +41,10 @@ run_conan()
 
 # add_subdirectory(opencmw)
 add_subdirectory(protobuf)
-add_subdirectory(flatbuffers)
+# add_subdirectory(flatbuffers)
 # add_subdirectory(cmw)
-add_subdirectory(capnproto)
-# add_subdirectory(memcpy)
+# add_subdirectory(capnproto)
+add_subdirectory(memcpy)
 
 option(ENABLE_UNITY "Enable Unity builds of projects" OFF)
 if(ENABLE_UNITY)

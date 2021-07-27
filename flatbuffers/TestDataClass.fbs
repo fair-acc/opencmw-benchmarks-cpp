@@ -1,0 +1,42 @@
+namespace benchmark;
+
+struct TestDataClass {
+  bool1: bool;
+  bool2: bool;
+  byte1: byte;
+  byte2: byte;
+  char1: ubyte;
+  char2: ubyte;
+  short1: int16;
+  short2: int16;
+  int1: int32;
+  int2: int32;
+  long1: int64;
+  long2: int64;
+  float1 : float;
+  float2 : float;
+  double1: double;
+  double2: double;
+  string1: string;
+  string2: string;
+
+  boolArray: [bool];
+  byteArray: [byte];
+  shortArray: [int16];
+  intArray: [int32];
+  longArray: [int64];
+  floatArray: [float];
+  doubleArray: [double];
+  stringArray: [string];
+
+  nDimensions: [int];
+  boolNdimArray: [bool];
+  byteNdimArray: [byte];
+  shortNdimArray: [int16];
+  intNdimArray: [int32];
+  longNdimArray : [int64];
+  floatNdimArray : [float32];
+  doubleNdimArray: [float64];
+
+  nestedData: TestDataClass;
+}

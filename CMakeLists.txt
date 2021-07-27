@@ -41,7 +41,7 @@ run_conan()
 
 # add_subdirectory(opencmw)
 add_subdirectory(protobuf)
-# add_subdirectory(fastbuffer)
+add_subdirectory(flatbuffers)
 # add_subdirectory(cmw)
 # add_subdirectory(capnproto)
 # add_subdirectory(memcpy)

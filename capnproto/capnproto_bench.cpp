@@ -1,63 +1,68 @@
 #include "TestDataClass.capnp.h"
-#include <capnp/message.h>
-#include <capnp/serialize-packed.h>
+#include <capnp/serialize.h>
 #include <benchmark/benchmark.h>
-#include <array>
-#include <string>
+#include <iostream>
 
-static void protobuf_bench(benchmark::State &state) {
+static void capnproto_bench(benchmark::State &state) {
     static const int N_ARRAY = 1000;
     //setup
     // initialize sample data
-    ::capnp::MallocMessageBuilder message;
-    TestDataClass::Builder testClassBuilder = message.initRoot<TestDataClass>();
-    // testClass.set_bool1(true);
-    // testClass.set_bool2(false);
+    ::capnp::MallocMessageBuilder message_builder;
+    TestDataClass::Builder testClass = message_builder.initRoot<TestDataClass>();
+    testClass.setBool1(true);
+    testClass.setBool2(false);
     // // byte1   = 10;
     // // byte2   = -100;
     // // char1   = 'a';
     // // char2   = 'Z';
     // // short1  = 20;
     // // short2  = -200;
-    // testClass.set_int1(30);
-    // testClass.set_int2(-300);
-    // testClass.set_long1(40);
-    // testClass.set_long2(-400);
-    // testClass.set_float1(50.5f);
-    // testClass.set_float2(-500.5f);
-    // testClass.set_double1(60.6);
-    // testClass.set_double2(-600.6);
-    // testClass.set_string1("Hello World!");
-    // testClass.set_string2("Γειά σου Κόσμε!");
+    testClass.setInt1(30);
+    testClass.setInt2(-300);
+    testClass.setLong1(40);
+    testClass.setLong2(-400);
+    testClass.setFloat1(50.5f);
+    testClass.setFloat2(-500.5f);
+    testClass.setDouble1(60.6);
+    testClass.setDouble2(-600.6);
+    testClass.setString1("Hello World!");
+    testClass.setString2("Γειά σου Κόσμε!");
 
-    // for (auto i = 0; i < N_ARRAY; i++) {
-    //     testClass.add_boolarray(i % 2 != 0);
-    //     // byte, char, short?
-    //     testClass.add_intarray(i);
-    //     testClass.add_longarray(i);
-    //     testClass.add_floatarray(i * 1.0f);
-    //     testClass.add_doublearray(i * 1.0);
-    //     testClass.add_stringarray("test" + std::to_string(i));
-    //     // multidim
-    // }
+    ::capnp::List<bool>::Builder        boolarray   = testClass.initBoolArray(N_ARRAY);
+    ::capnp::List<int>::Builder         intarray    = testClass.initIntArray(N_ARRAY);
+    ::capnp::List<long>::Builder        longarray   = testClass.initLongArray(N_ARRAY);
+    ::capnp::List<float>::Builder       floatarray  = testClass.initFloatArray(N_ARRAY);
+    ::capnp::List<double>::Builder      doublearray = testClass.initDoubleArray(N_ARRAY);
+    ::capnp::List<capnp::Text>::Builder stringarray = testClass.initStringArray(N_ARRAY);
+    for (capnp::uint i = 0; i < N_ARRAY; i++) {
+        boolarray.set(i, (i % 2 != 0));
+        // byte, char, short?
+        intarray.set(i, static_cast<int>(i));
+        longarray.set(i, i);
+        floatarray.set(i, static_cast<float>(i) * 1.0f);
+        doublearray.set(i, (i * 1.0));
+        stringarray.set(i, ("test" + std::to_string(i)));
+    }
+    // multidim
     // benchmark loop
     size_t written = 0;
-    kj::VectorOutputStream data;
+    size_t size = 0;
     for (auto _ : state) {
         // code to benchmark
-        TestDataClass::serialise(testClassBuilder);
-        writeMessage(buffer, output);
-        written += buffer.length();
-        TestDataClass recovered;
-        kj::ArrayInputStream array(buffer.getArray());
-        capnp::InputStreamMessageReader input(array);
-        TestDataClass deserialised;
-        deserialised.Deserialize(input.getRoot<TestDataClass>());
+        auto data = ::capnp::messageToFlatArray(message_builder);
+        written += data.size();
+        size = data.size();
+        ::capnp::FlatArrayMessageReader message_receiver_builder(data);
+        auto messageReceiver = message_receiver_builder.getRoot<TestDataClass>();
+        assert(messageReceiver.getBool1());
+        assert(!messageReceiver.getBool2());
         benchmark::DoNotOptimize(data);
+        benchmark::DoNotOptimize(messageReceiver);
         benchmark::ClobberMemory();
     }
-    state.SetBytesProcessed(written);
+    state.SetBytesProcessed(static_cast<int>(written));
+    std::cout << "size of object: " << size << std::endl;
 }
 
-BENCHMARK(protobuf_bench)->Name("Protobuf")->Repetitions(5);
+BENCHMARK(capnproto_bench)->Name("CapnProto")->Repetitions(5);
 BENCHMARK_MAIN();

@@ -24,18 +24,6 @@ add_library(project_warnings INTERFACE)
 include(cmake/CompilerWarnings.cmake)
 set_project_warnings(project_warnings)
 
-# sanitizer options if supported by compiler
-include(cmake/Sanitizers.cmake)
-enable_sanitizers(project_options)
-
-# allow for static analysis options
-include(cmake/StaticAnalyzers.cmake)
-
-option(BUILD_SHARED_LIBS "Enable compilation of shared libraries" OFF)
-option(ENABLE_TESTING "Enable Test Builds" ON)
-option(ENABLE_FUZZING "Enable Fuzzing Builds" OFF)
-option(ENABLE_CONCEPTS "Enable Concepts Builds" ON)
-
 include(cmake/Conan.cmake)
 run_conan()
 
@@ -43,11 +31,5 @@ add_subdirectory(memcpy)
 add_subdirectory(opencmw)
 add_subdirectory(protobuf)
 # add_subdirectory(flatbuffers)
-# add_subdirectory(capnproto)
+add_subdirectory(capnproto)
 # add_subdirectory(cmw)
-
-option(ENABLE_UNITY "Enable Unity builds of projects" OFF)
-if(ENABLE_UNITY)
-  # Add for any project you want to apply unity builds for
-  set_target_properties(intro PROPERTIES UNITY_BUILD ON)
-endif()

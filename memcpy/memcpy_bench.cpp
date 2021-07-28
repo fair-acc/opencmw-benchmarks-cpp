@@ -1,7 +1,7 @@
 #include <benchmark/benchmark.h>
 #include <cstring>
 
-static void protobuf_bench(benchmark::State &state) {
+static void memcpy_bench(benchmark::State &state) {
     static const int N_ARRAY = 30000;
     char SourceArray[N_ARRAY];
     char DstArray[N_ARRAY];
@@ -26,6 +26,5 @@ static void protobuf_bench(benchmark::State &state) {
     state.SetBytesProcessed(written);
 }
 
-BENCHMARK(protobuf_bench)->Name("Protobuf")->Repetitions(5);
-
+BENCHMARK(memcpy_bench)->Name("memcpy(Benchmark)")->Repetitions(5);
 BENCHMARK_MAIN();

@@ -55,5 +55,3 @@ static void protobuf_bench(benchmark::State &state) {
 }
 
 BENCHMARK(protobuf_bench)->Name("Protobuf")->Repetitions(5);
-
-BENCHMARK_MAIN();

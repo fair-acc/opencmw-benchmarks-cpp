@@ -45,7 +45,7 @@ static void protobuf_bench(benchmark::State &state) {
     kj::VectorOutputStream data;
     for (auto _ : state) {
         // code to benchmark
-        testClass.serialise(testClassBuilder);
+        TestDataClass::serialise(testClassBuilder);
         writeMessage(buffer, output);
         written += buffer.length();
         TestDataClass recovered;
@@ -60,5 +60,4 @@ static void protobuf_bench(benchmark::State &state) {
 }
 
 BENCHMARK(protobuf_bench)->Name("Protobuf")->Repetitions(5);
-
 BENCHMARK_MAIN();

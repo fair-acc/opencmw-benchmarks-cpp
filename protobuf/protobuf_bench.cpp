@@ -1,5 +1,6 @@
 #include "TestDataClass.pb.h"
 #include <benchmark/benchmark.h>
+#include <iostream>
 #include <array>
 #include <string>
 
@@ -39,22 +40,24 @@ static void protobuf_bench(benchmark::State &state) {
     }
     // benchmark loop
     size_t written = 0;
-    std::string data {};
+    auto len = testClass.ByteSizeLong();
+    char data[len];
     for (auto _ : state) {
         // code to benchmark
-        testClass.SerializeToString(&data);
-        written += data.length();
+        testClass.SerializeToArray(data, len);
+        written += len;
         benchmark::TestDataClass recovered;
-        assert(recovered.ParseFromString(data));
+        assert(recovered.ParseFromArray(data, len));
         assert(recovered.IsInitialized());
         assert(recovered.bool1());
         assert(!recovered.bool2());
-        benchmark::DoNotOptimize(data);
+        benchmark::DoNotOptimize(recovered);
         benchmark::ClobberMemory();
     }
+    std::cout << "Data n=" << len << std::endl;
+    std::cout << std::string(&data[100], 100) << std::endl;
     state.SetBytesProcessed(written);
 }
 
 BENCHMARK(protobuf_bench)->Name("Protobuf")->Repetitions(5);
-
 BENCHMARK_MAIN();

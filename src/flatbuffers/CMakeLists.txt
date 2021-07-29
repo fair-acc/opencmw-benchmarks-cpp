@@ -4,5 +4,5 @@ flatbuffers_generate_headers(
         SCHEMAS TestDataClass.fbs
 )
 add_executable(flatbuffers_bench flatbuffers_bench.cpp)
-target_link_libraries(flatbuffers_bench PRIVATE CONAN_PKG::benchmark CONAN_PKG::flatbuffers flatbuffers_bench_headers)
+target_link_libraries(flatbuffers_bench PRIVATE CONAN_PKG::benchmark CONAN_PKG::flatbuffers flatbuffers_bench_headers project_options project_warnings)
 target_include_directories(flatbuffers_bench PUBLIC ${CMAKE_CURRENT_BINARY_DIR}) # make compiled protocol buffers visible

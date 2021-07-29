@@ -1,2 +1,0 @@
-add_executable(memcpy_bench memcpy_bench.cpp)
-target_link_libraries(memcpy_bench PRIVATE CONAN_PKG::benchmark)

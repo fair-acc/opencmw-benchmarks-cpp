@@ -8,14 +8,16 @@ using namespace opencmw;
 using namespace opencmw::utils; // for operator<< and fmt::format overloading
 
 static void opencmw_bench(benchmark::State &state) {
+    static const int N_ARRAY = 1000;
     // Seed with a real random value, if available
     std::random_device r;
     std::default_random_engine e1(r());
+    std::uniform_int_distribution<size_t> randomArrayIndex(0, N_ARRAY-1);
 
     size_t dataSize = 0;
 
     IoBuffer      buffer;
-    TestDataClass testData(1000, 0);    // numeric heavy data <-> equivalent to Java benchmark
+    TestDataClass testData(N_ARRAY, 0);    // numeric heavy data <-> equivalent to Java benchmark
     testData.bool1 = true;
     testData.bool2 = false;
     dataSize += 2 * sizeof(bool);
@@ -89,9 +91,10 @@ static void opencmw_bench(benchmark::State &state) {
         } catch (...) {
             std::cout << "caught unknown exception " << std::endl;
         }
-
-        if (testData.string1 != testData2.string1) {
-            throw std::exception();
+        auto randomIdx = randomArrayIndex(e1);
+        if (testData.doubleArray.at(randomIdx) != testData2.doubleArray.at(randomIdx)) {
+            state.SkipWithError(("double arrays not identical" + std::to_string(randomIdx)).c_str());
+            break;
         }
         benchmark::DoNotOptimize(buffer);
         benchmark::DoNotOptimize(testData);
@@ -100,6 +103,7 @@ static void opencmw_bench(benchmark::State &state) {
     }
     assert(testData == testData2);
     state.counters["BytesProcessed"] = benchmark::Counter(static_cast<int>(dataSize), benchmark::Counter::kIsIterationInvariantRate, benchmark::Counter::OneK::kIs1024);
+    state.counters["ItemsProcessed"] = benchmark::Counter(1, benchmark::Counter::kIsIterationInvariantRate, benchmark::Counter::OneK::kIs1000);
     state.counters["wireSize"] = static_cast<int>(buffer.size());
     state.counters["structSize"] = static_cast<int>(sizeof(TestDataClass));
     state.counters["dataSize"] = static_cast<int>(dataSize);

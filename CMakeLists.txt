@@ -27,6 +27,9 @@ set_project_warnings(project_warnings)
 include(cmake/Conan.cmake)
 run_conan()
 
+add_executable(bench  src/bench.cpp)
+target_link_libraries(bench PRIVATE CONAN_PKG::benchmark)
+
 add_subdirectory(src/memcpy)
 add_subdirectory(src/opencmw)
 add_subdirectory(src/protobuf)

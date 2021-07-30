@@ -1,19 +1,19 @@
 #include "TestDataClass.pb.h"
 #include <benchmark/benchmark.h>
-#include <iostream>
 #include <vector>
 #include <string>
 #include <random>
 
 static void protobuf_bench(benchmark::State &state) {
+    static const int N_ARRAY = 1000;
     // Seed with a real random value, if available
     std::random_device r;
     // Choose a random mean between 1 and 6
     std::default_random_engine e1(r());
+    std::uniform_int_distribution<> randomArrayIndex(0, N_ARRAY-1);
 
     size_t dataSize = 0;
 
-    static const int N_ARRAY = 1000;
     //setup
     // initialize sample data
     benchmark::TestDataClass testClass;
@@ -73,13 +73,18 @@ static void protobuf_bench(benchmark::State &state) {
         assert(recovered.IsInitialized());
         assert(recovered.bool1());
         assert(!recovered.bool2());
+        auto randomIdx = randomArrayIndex(e1);
+        if (testClass.doublearray().at(randomIdx) != recovered.doublearray().at(randomIdx)) {
+            state.SkipWithError(std::string("double arrays not identical" + std::to_string(randomIdx)).c_str());
+            break;
+        }
         benchmark::DoNotOptimize(recovered);
         benchmark::ClobberMemory();
     }
     state.counters["BytesProcessed"] = benchmark::Counter(static_cast<int>(dataSize), benchmark::Counter::kIsIterationInvariantRate, benchmark::Counter::OneK::kIs1024);
     state.counters["wireSize"] = static_cast<int>(len);
     state.counters["dataSize"] = static_cast<int>(dataSize);
+    state.counters["ItemsProcessed"] = benchmark::Counter(1, benchmark::Counter::kIsIterationInvariantRate, benchmark::Counter::OneK::kIs1000);
 }
 
 BENCHMARK(protobuf_bench)->Name("Protobuf")->Repetitions(5);
-BENCHMARK_MAIN();

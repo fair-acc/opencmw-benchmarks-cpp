@@ -86,9 +86,9 @@ static void capnproto_bench(benchmark::State &state) {
         benchmark::ClobberMemory();
     }
     state.counters["BytesProcessed"] = benchmark::Counter(static_cast<int>(dataSize), benchmark::Counter::kIsIterationInvariantRate, benchmark::Counter::OneK::kIs1024);
+    state.counters["ItemsProcessed"] = benchmark::Counter(1, benchmark::Counter::kIsIterationInvariantRate, benchmark::Counter::OneK::kIs1000);
     state.counters["wireSize"] = static_cast<int>(size);
     state.counters["dataSize"] = static_cast<int>(dataSize);
 }
 
 BENCHMARK(capnproto_bench)->Name("CapnProto")->Repetitions(5);
-BENCHMARK_MAIN();

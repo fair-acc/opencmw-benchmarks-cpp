@@ -6,6 +6,10 @@
 
 static void capnproto_bench(benchmark::State &state) {
     static const int N_ARRAY = 1000;
+    // Seed with a real random value, if available
+    std::random_device r;
+    std::default_random_engine e1(r());
+    std::uniform_int_distribution<capnp::uint> randomArrayIndex(0, N_ARRAY-1);
     size_t dataSize = 0;
     std::string string1("Hello World!");
     std::string string2("Γειά σου Κόσμε!");
@@ -21,15 +25,9 @@ static void capnproto_bench(benchmark::State &state) {
     dataSize += N_ARRAY * sizeof(long);
     dataSize += N_ARRAY * sizeof(float);
     dataSize += N_ARRAY * sizeof(double);
-    //setup
-    std::random_device r;
-    // Choose a random mean between 1 and 6
-    std::default_random_engine e1(r());
-    // initialize sample data
     ::capnp::MallocMessageBuilder message_builder;
     TestDataClass::Builder testClass = message_builder.initRoot<TestDataClass>();
     // benchmark loop
-    size_t written = 0;
     size_t size = 0;
     for (auto _ : state) {
         // code to benchmark
@@ -59,13 +57,6 @@ static void capnproto_bench(benchmark::State &state) {
         ::capnp::List<double>::Builder      doublearray = testClass.initDoubleArray(N_ARRAY);
         // ::capnp::List<capnp::Text>::Builder stringarray = testClass.initStringArray(N_ARRAY);
         for (capnp::uint i = 0; i < N_ARRAY; i++) {
-            // boolarray.set(i, (e1() % 2 != 0));
-            // // byte, char, short?
-            // intarray.set(i, static_cast<int>(e1()));
-            // longarray.set(i, static_cast<long>(e1()));
-            // floatarray.set(i, static_cast<float>(e1()) * 1.0f);
-            // doublearray.set(i, (static_cast<double>(e1()) * 1.0));
-            // stringarray.set(i, ("test" + std::to_string(e1())));
             boolarray.set(i, (e1() % 2 != 0));
             intarray.set(i, static_cast<int>(e1()));
             longarray.set(i, static_cast<long>(e1()));
@@ -75,10 +66,14 @@ static void capnproto_bench(benchmark::State &state) {
         }
         // multidim
         auto data = ::capnp::messageToFlatArray(message_builder);
-        written += data.size();
         size = data.size();
         ::capnp::FlatArrayMessageReader message_receiver_builder(data);
         auto messageReceiver = message_receiver_builder.getRoot<TestDataClass>();
+        auto randomIdx = randomArrayIndex(e1);
+        if (testClass.getDoubleArray()[randomIdx] != messageReceiver.getDoubleArray()[randomIdx]) {
+            state.SkipWithError(("double arrays not identical" + std::to_string(randomIdx)).c_str());
+            break;
+        }
         assert(messageReceiver.getBool1());
         assert(!messageReceiver.getBool2());
         benchmark::DoNotOptimize(data);

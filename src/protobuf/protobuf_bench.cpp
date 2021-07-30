@@ -74,8 +74,13 @@ static void protobuf_bench(benchmark::State &state) {
         assert(recovered.bool1());
         assert(!recovered.bool2());
         auto randomIdx = randomArrayIndex(e1);
-        if (testClass.doublearray().at(randomIdx) != recovered.doublearray().at(randomIdx)) {
-            state.SkipWithError(std::string("double arrays not identical" + std::to_string(randomIdx)).c_str());
+        try {
+            if (testClass.doublearray().at(randomIdx) != recovered.doublearray().at(randomIdx)) {
+                state.SkipWithError(std::string("double arrays not identical at " + std::to_string(randomIdx)).c_str());
+                break;
+            }
+        } catch (...) {
+            state.SkipWithError(std::string("problem accessing double array at index" + std::to_string(randomIdx)).c_str());
             break;
         }
         benchmark::DoNotOptimize(recovered);

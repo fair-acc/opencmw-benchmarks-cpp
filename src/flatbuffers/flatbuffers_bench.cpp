@@ -51,7 +51,8 @@ static void protobuf_bench(benchmark::State &state) {
         benchmark::DoNotOptimize(data);
         benchmark::ClobberMemory();
     }
-    state.SetBytesProcessed(written);
+    state.counters["dataLen"] = static_cast<int>(data.length());
+    state.SetBytesProcessed(static_cast<int>(written/1000));
 }
 
 BENCHMARK(protobuf_bench)->Name("Protobuf")->Repetitions(5);

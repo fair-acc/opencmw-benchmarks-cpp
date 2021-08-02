@@ -69,10 +69,7 @@ static void protobuf_bench(benchmark::State &state) {
         testClass.SerializeToArray(data.data(), static_cast<int>(len));
         written += len;
         benchmark::TestDataClass recovered;
-        assert(recovered.ParseFromArray(data.data(), len));
-        assert(recovered.IsInitialized());
-        assert(recovered.bool1());
-        assert(!recovered.bool2());
+        recovered.ParseFromArray(data.data(), len);
         auto randomIdx = randomArrayIndex(e1);
         try {
             if (testClass.doublearray().at(randomIdx) != recovered.doublearray().at(randomIdx)) {

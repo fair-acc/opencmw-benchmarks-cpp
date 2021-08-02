@@ -3,7 +3,9 @@
 #ifndef OPENCMW_CPP_IOCLASSSERIALISERBENCHMARK_H
 #define OPENCMW_CPP_IOCLASSSERIALISERBENCHMARK_H
 #include <numeric>
+#include <random>
 #include <opencmw/opencmw.hpp>
+#include <opencmw/MultiArray.hpp>
 
 using opencmw::MultiArray;
 using std::array;
@@ -46,15 +48,13 @@ struct TestDataClass {
     vector<string>  stringArray;
 
     // generic n-dim arrays - N.B. striding-arrays: low-level format is the same except of 'nDimension' descriptor
-    array<int, 3>  nDimensions;
-    vector<char>   boolNdimArray;
-    vector<int8_t> byteNdimArray;
-    // MultiArray<char,2> charNdimArray;
-    vector<int16_t> shortNdimArray;
-    vector<int32_t> intNdimArray;
-    vector<int64_t> longNdimArray;
-    vector<float>   floatNdimArray;
-    vector<double>  doubleNdimArray;
+    MultiArray<bool, 3>    boolNdimArray;
+    MultiArray<uint8_t, 3> byteNdimArray;
+    MultiArray<int16_t, 3> shortNdimArray;
+    MultiArray<int32_t, 3> intNdimArray;
+    MultiArray<int64_t, 3> longNdimArray;
+    MultiArray<float, 3>   floatNdimArray;
+    MultiArray<double, 3>  doubleNdimArray;
 
     // nested class
     unique_ptr<TestDataClass> nestedData;
@@ -69,7 +69,6 @@ struct TestDataClass {
             nestedData = std::make_unique<TestDataClass>(TestDataClass(nSizePrimitives, nSizeString, nestedClassRecursion - 1));
             nestedData->init(nSizePrimitives + 1, nSizeString + 1); //N.B. '+1' to have different sizes for nested classes
         }
-
         init(nSizePrimitives, nSizeString);
     }
 
@@ -105,7 +104,6 @@ struct TestDataClass {
         if (floatArray != other.floatArray) return false;
         if (doubleArray != other.doubleArray) return false;
         if (stringArray != other.stringArray) return false;
-        if (nDimensions != other.nDimensions) return false;
 
         if (boolNdimArray != other.boolNdimArray) return false;
         if (byteNdimArray != other.byteNdimArray) return false;
@@ -157,20 +155,23 @@ struct TestDataClass {
         stringArray.clear();
 
         // reset n-dim arrays
-        std::iota(nDimensions.begin(), nDimensions.end(), 0);
         boolNdimArray.clear();
         byteNdimArray.clear();
-        //            charNdimArray.clear();
+        // charNdimArray.clear();
         shortNdimArray.clear();
         intNdimArray.clear();
         longNdimArray.clear();
         floatNdimArray.clear();
         doubleNdimArray.clear();
 
-        //nestedData = null;
+        // nestedData = null;
     }
 
     void init(const int nSizePrimitives, const int nSizeString) {
+        // Seed with a real random value, if available
+        std::random_device r;
+        // Choose a random mean between 1 and 6
+        std::default_random_engine e1(r());
         if (nSizePrimitives >= 0) {
             bool1   = true;
             bool2   = false;
@@ -194,61 +195,94 @@ struct TestDataClass {
 
             // allocate 1-dim arrays
             boolArray.resize(static_cast<std::size_t>(nSizePrimitives));
-            std::generate(boolArray.begin(), boolArray.end(), []() { static int i=0; return (i++)%2==0; });
-            //std::cerr << fmt::format("bool array size {} - sizeof() = {} vs {}\n", boolArray.size(), sizeof(boolArray[0]), sizeof(bool));
-
+            std::generate(boolArray.begin(), boolArray.end(), [&]() { return e1() % 2 == 0; });
             byteArray.resize(static_cast<std::size_t>(nSizePrimitives));
-            std::generate(byteArray.begin(), byteArray.end(), []() { static int i=1; return (i++)%127; });
+            std::generate(byteArray.begin(), byteArray.end(), [&]() {return static_cast<uint8_t>(e1()); });
             // charArray.resize(static_cast<std::size_t>(nSizePrimitives));
-            // std::generate(charArray.begin(), charArray.end(), [](){ static int i=2; return (i++)%127; });
+            // std::generate(charArray.begin(), charArray.end(), [&](){return static_cast<uint_8t>(e1()); });
             shortArray.resize(static_cast<std::size_t>(nSizePrimitives));
-            std::generate(shortArray.begin(), shortArray.end(), []() { static int i=3; return (i++)%64000; });
+            std::generate(shortArray.begin(), shortArray.end(), [&]() {return static_cast<short>(e1()); });
             intArray.resize(static_cast<std::size_t>(nSizePrimitives));
-            std::generate(intArray.begin(), intArray.end(), []() { static int i=4; return i++; });
+            std::generate(intArray.begin(), intArray.end(), [&]() {return static_cast<int>(e1()); });
             longArray.resize(static_cast<std::size_t>(nSizePrimitives));
-            std::generate(longArray.begin(), longArray.end(), []() { static int i=5; return i++; });
+            std::generate(longArray.begin(), longArray.end(), [&]() {return static_cast<long>(e1()); });
             floatArray.resize(static_cast<std::size_t>(nSizePrimitives));
-            std::generate(floatArray.begin(), floatArray.end(), []() { static int i=6; return i++; });
+            std::generate(floatArray.begin(), floatArray.end(), [&]() {return static_cast<float>(e1()); });
             doubleArray.resize(static_cast<std::size_t>(nSizePrimitives));
-            std::generate(doubleArray.begin(), doubleArray.end(), []() { static int i=7; return i++; });
+            std::generate(doubleArray.begin(), doubleArray.end(), [&]() {return static_cast<double>(e1()); });
 
             // allocate n-dim arrays -- N.B. for simplicity the dimension/low-level backing size is const
-
-            nDimensions         = { 2, 3, 2 };
-            const int nMultiDim = nDimensions[0] * nDimensions[1] * nDimensions[2];
-            boolNdimArray.resize(static_cast<std::size_t>(nMultiDim));
-            std::generate(boolNdimArray.begin(), boolNdimArray.end(), []() { static int i=0; return (i++)%2==0; });
-            //std::cerr << fmt::format("bool array size {} - sizeof() = {} vs {}\n", boolNdimArray.size(), sizeof(boolNdimArray[0]), sizeof(bool));
-
-            byteNdimArray.resize(static_cast<std::size_t>(nMultiDim));
-            std::generate(byteNdimArray.begin(), byteNdimArray.end(), []() { static int i=1; return (i++)%127; });
+            boolNdimArray = MultiArray<bool, 3>({2,3,2});
+            std::generate(boolNdimArray.elements().begin(), boolNdimArray.elements().end(), [&]() { return e1() % 2 == 0; });
+            byteNdimArray = MultiArray<uint8_t , 3>({2,3,2});
+            std::generate(byteNdimArray.elements().begin(), byteNdimArray.elements().end(), [&]() {return static_cast<uint8_t>(e1()); });
             // charNdimArray.resize(static_cast<std::size_t>(nMultiDim));
-            // std::generate(charNdimArray.begin(), charNdimArray.end(), [](){ static int i=2; return (i++)%127; });
-            shortNdimArray.resize(static_cast<std::size_t>(nMultiDim));
-            std::generate(shortNdimArray.begin(), shortNdimArray.end(), []() { static int i=3; return (i++)%64000; });
-            intNdimArray.resize(static_cast<std::size_t>(nMultiDim));
-            std::generate(intNdimArray.begin(), intNdimArray.end(), []() { static int i=4; return i++; });
-            longNdimArray.resize(static_cast<std::size_t>(nMultiDim));
-            std::generate(longNdimArray.begin(), longNdimArray.end(), []() { static int i=5; return i++; });
-            floatNdimArray.resize(static_cast<std::size_t>(nMultiDim));
-            std::generate(floatNdimArray.begin(), floatNdimArray.end(), []() { static int i=6; return i++; });
-            doubleNdimArray.resize(static_cast<std::size_t>(nMultiDim));
-            std::generate(doubleNdimArray.begin(), doubleNdimArray.end(), []() { static int i=7; return i++; });
+            // std::generate(charNdimArray.begin(), charNdimArray.end(), []() {return static_cast<uint8_t>(e1()); });
+            shortNdimArray = MultiArray<short, 3>({2,3,2});
+            std::generate(shortNdimArray.elements().begin(), shortNdimArray.elements().end(), [&]() {return static_cast<short>(e1()); });
+            intNdimArray = MultiArray<int, 3>({2,3,2});
+            std::generate(intNdimArray.elements().begin(), intNdimArray.elements().end(), [&]() {return static_cast<int>(e1()); });
+            longNdimArray = MultiArray<long, 3>({2,3,2});
+            std::generate(longNdimArray.elements().begin(), longNdimArray.elements().end(), [&]() {return static_cast<long>(e1()); });
+            floatNdimArray = MultiArray<float, 3>({2,3,2});
+            std::generate(floatNdimArray.elements().begin(), floatNdimArray.elements().end(), [&]() {return static_cast<float>(e1()); });
+            doubleNdimArray = MultiArray<double, 3>({2,3,2});
+            std::generate(doubleNdimArray.elements().begin(), doubleNdimArray.elements().end(), [&]() {return static_cast<double>(e1()); });
         }
         if (nSizeString >= 0) {
             for (int i = 0; i < nSizeString; i++) {
                 stringArray.emplace_back(string1);
             }
-            //stringArray.resize(static_cast<std::size_t>(nSizeString));
-            //std::generate(stringArray.begin(), stringArray.end(), [&]() { return string1; });
         } else {
             stringArray.clear();
         }
     }
+    static size_t get_data_size(const int nSizePrimitives = -1, const int nSizeString = -1, const int nestedClassRecursion = -1) {
+        size_t dataSize = 0;
+        if (nestedClassRecursion > 0) {
+            dataSize += get_data_size(nSizePrimitives, nSizeString, nestedClassRecursion-1);
+        }
+        dataSize += 2 * sizeof(bool);
+        dataSize += 2 * sizeof(int8_t);
+        dataSize += 2 * sizeof(char);
+        dataSize += 2 * sizeof(short);
+        dataSize += 2 * sizeof(int);
+        dataSize += 2 * sizeof(long);
+        dataSize += 2 * sizeof(float);
+        dataSize += 2 * sizeof(double);
+        auto string1 = std::string("Hello World!");
+        dataSize += string1.size();
+        auto string2 = std::string("Γειά σου Κόσμε!");
+        dataSize += string2.size();
+
+        dataSize += static_cast<size_t>(nSizePrimitives) * sizeof(uint8_t); // bool arrays are special
+        dataSize += static_cast<size_t>(nSizePrimitives) * sizeof(int8_t);
+        dataSize += static_cast<size_t>(nSizePrimitives) * sizeof(short);
+        dataSize += static_cast<size_t>(nSizePrimitives) * sizeof(int);
+        dataSize += static_cast<size_t>(nSizePrimitives) * sizeof(long);
+        dataSize += static_cast<size_t>(nSizePrimitives) * sizeof(float);
+        dataSize += static_cast<size_t>(nSizePrimitives) * sizeof(double);
+
+        if (nSizeString > 0) {
+            throw std::invalid_argument("string contents not implemented");
+        }
+
+        // multi dim data left as default content
+        size_t nDims = 2 * 3 * 2;
+        dataSize += nDims * sizeof(uint8_t);
+        dataSize += nDims * sizeof(int8_t);
+        dataSize += nDims * sizeof(short);
+        dataSize += nDims * sizeof(int);
+        dataSize += nDims * sizeof(long);
+        dataSize += nDims * sizeof(float);
+        dataSize += nDims * sizeof(double);
+
+        return dataSize;
+    }
 };
 ENABLE_REFLECTION_FOR(TestDataClass, bool1, bool2, byte1, byte2, char1, char2, short1, short2, int1, int2, long1, long2, float1, float2, double1, double2, string1, string2, // basic variables
         boolArray, byteArray, shortArray, intArray, longArray, floatArray, doubleArray, stringArray,                                                                         // basic 1D-arrays
-        nDimensions, boolNdimArray, byteNdimArray, shortNdimArray, intNdimArray, longNdimArray, floatNdimArray, doubleNdimArray,                                             // basic ND-arrays (proxy) TODO: replace with MultiArray
+        boolNdimArray, byteNdimArray, shortNdimArray, intNdimArray, longNdimArray, floatNdimArray, doubleNdimArray,                                                          // basic ND-arrays
         nestedData                                                                                                                                                           // nested class
 )
 

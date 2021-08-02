@@ -33,6 +33,8 @@ static void memcpy_bench(benchmark::State &state) {
         benchmark::ClobberMemory();
     }
     state.counters["BytesProcessed"] = benchmark::Counter(static_cast<int>(N_ARRAY), benchmark::Counter::kIsIterationInvariantRate, benchmark::Counter::OneK::kIs1024);
+    state.counters["wireSize"] = static_cast<int>(N_ARRAY);
+    state.counters["dataSize"] = static_cast<int>(N_ARRAY);
     state.counters["ItemsProcessed"] = benchmark::Counter(1, benchmark::Counter::kIsIterationInvariantRate, benchmark::Counter::OneK::kIs1000);
 }
 

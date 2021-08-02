@@ -23,30 +23,29 @@ static void opencmw_bench(benchmark::State &state) {
     // generate random input data
     TestDataClass testDataA(N_ARRAY, 0, 0);    // numeric heavy data <-> equivalent to Java benchmark
     TestDataClass testDataB(N_ARRAY, 0, 0);    // numeric heavy data <-> equivalent to Java benchmark
+    // received data
+    TestDataClass testData2;
 
     // buffer for storage
     IoBuffer      buffer;
-    // received data
-    TestDataClass testData2;
-    // benchmark loop
-    size_t written = 0;
     int i = 0;
     for (auto _ : state) {
         i++;
         buffer.clear();
         opencmw::serialise<YaS>(buffer, i % 2 == 0 ? testDataA : testDataB, false);
         buffer.reset();
-        written += buffer.size();
         try {
             opencmw::deserialise<YaS>(buffer, testData2);
+            auto randomIdx = randomArrayIndex(e1);
+            if ((i % 2 == 0 ? testDataA : testDataB).doubleArray.at(randomIdx) != testData2.doubleArray.at(randomIdx)) {
+                state.SkipWithError(("double arrays not identical" + std::to_string(randomIdx)).c_str());
+                break;
+            }
         } catch (std::exception &e) {
-            std::cout << "caught exception " << typeName<std::remove_reference_t<decltype(e)>> << std::endl;
+            state.SkipWithError((std::string("caught exception: ") + typeName<std::remove_reference_t<decltype(e)>>.data()).c_str());
+            break;
         } catch (...) {
-            std::cout << "caught unknown exception " << std::endl;
-        }
-        auto randomIdx = randomArrayIndex(e1);
-        if ((i % 2 == 0 ? testDataA : testDataB).doubleArray.at(randomIdx) != testData2.doubleArray.at(randomIdx)) {
-            state.SkipWithError(("double arrays not identical" + std::to_string(randomIdx)).c_str());
+            state.SkipWithError("unknown exception");
             break;
         }
         benchmark::DoNotOptimize(buffer);

@@ -14,8 +14,6 @@ using std::unique_ptr;
 using std::vector;
 
 struct TestDataClass {
-    static volatile bool cmwCompatibilityMode;
-
     // basic data type
     bool   bool1;
     bool   bool2;
@@ -285,8 +283,6 @@ ENABLE_REFLECTION_FOR(TestDataClass, bool1, bool2, byte1, byte2, char1, char2, s
         boolNdimArray, byteNdimArray, shortNdimArray, intNdimArray, longNdimArray, floatNdimArray, doubleNdimArray,                                                          // basic ND-arrays
         nestedData                                                                                                                                                           // nested class
 )
-
-volatile bool TestDataClass::cmwCompatibilityMode = false;
 
 #endif //OPENCMW_CPP_IOCLASSSERIALISERBENCHMARK_H
 

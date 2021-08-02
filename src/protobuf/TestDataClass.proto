@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package benchmark;
+package protobuf;
 message TestDataClass {
   optional bool bool1 = 1;
   optional bool bool2 = 2;
@@ -20,7 +20,8 @@ message TestDataClass {
   optional double double2 = 16;
   optional string string1 = 17;
   optional string string2 = 18;
-  repeated bool boolArray = 19; // todo: is using repeated for arrays a valid choice?
+  // arrays
+  repeated bool boolArray = 19;
   // repeated byteArray = 20;
   // repeated shortArray = 21;
   repeated int32 intArray = 22;
@@ -28,13 +29,14 @@ message TestDataClass {
   repeated float floatArray = 24;
   repeated double doubleArray = 25;
   repeated string stringArray = 26;
-  // optional nDimensions = 27; // todo: how to model multi dim in protobuf
-  // optional boolNdimArray = 28;
-  // optional byteNdimArray = 29;
-  // optional shortNdimArray = 30;
-  // optional intNdimArray = 31;
-  // optional longNdimArray = 32;
-  // optional floatNdimArray = 33;
-  // optional doubleNdimArray = 34;
+  // multi dim data, flattened
+  repeated int32 nDimensions = 27;
+  repeated bool boolNdimArray = 28;
+  // repeated byteNdimArray = 29;
+  //repeated shortNdimArray = 30;
+  repeated int32 intNdimArray = 31;
+  repeated int64 longNdimArray = 32;
+  repeated float floatNdimArray = 33;
+  repeated double doubleNdimArray = 34;
   optional TestDataClass nestedData = 35;
 }

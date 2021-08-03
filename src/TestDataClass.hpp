@@ -35,7 +35,7 @@ struct TestDataClass {
     string string2;
 
     // 1-dim arrays
-    vector<uint8_t> boolArray;
+    vector<bool> boolArray;
     vector<int8_t>  byteArray;
     // vector<int8_t> charArray;
     vector<int16_t> shortArray;

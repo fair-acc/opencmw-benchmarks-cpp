@@ -1,58 +1,159 @@
 #include "TestDataClass_generated.h"
 #include <benchmark/benchmark.h>
+#include "../TestDataClass.hpp"
 #include <string>
+#include <iostream>
+#include <random>
 
-static void protobuf_bench(benchmark::State &state) {
-    static const int N_ARRAY = 1000;
-    //setup
-    // initialize sample data
-    benchmark::TestDataClass testClass;
-    testClass.set_bool1(true);
-    testClass.set_bool2(false);
-    // byte1   = 10;
-    // byte2   = -100;
-    // char1   = 'a';
-    // char2   = 'Z';
-    // short1  = 20;
-    // short2  = -200;
-    testClass.set_int1(30);
-    testClass.set_int2(-300);
-    testClass.set_long1(40);
-    testClass.set_long2(-400);
-    testClass.set_float1(50.5f);
-    testClass.set_float2(-500.5f);
-    testClass.set_double1(60.6);
-    testClass.set_double2(-600.6);
-    testClass.set_string1("Hello World!");
-    testClass.set_string2("Γειά σου Κόσμε!");
+using namespace flatbuffers;
+using namespace fb_bench;
 
-    for (auto i = 0; i < N_ARRAY; i++) {
-        testClass.add_boolarray(i % 2 != 0);
-        // byte, char, short?
-        testClass.add_intarray(i);
-        testClass.add_longarray(i);
-        testClass.add_floatarray(i * 1.0f);
-        testClass.add_doublearray(i * 1.0);
-        testClass.add_stringarray("test" + std::to_string(i));
-        // multidim
-    }
-    // benchmark loop
-    size_t written = 0;
-    std::string data {};
-    for (auto _ : state) {
-        // code to benchmark
-        testClass.SerializeToString(&data);
-        written += data.length();
-        benchmark::TestDataClass recovered;
-        assert(recovered.ParseFromString(data));
-        assert(recovered.IsInitialized());
-        assert(recovered.bool1());
-        assert(!recovered.bool2());
-        benchmark::DoNotOptimize(data);
-        benchmark::ClobberMemory();
-    }
-    state.counters["dataLen"] = static_cast<int>(data.length());
-    state.SetBytesProcessed(static_cast<int>(written/1000));
+static void setContainerFromPoco(fb_bench::TestDataClassFbT &testDataClassFB, const TestDataClass &data) {
+    testDataClassFB.bool1 = data.bool1;
+    testDataClassFB.bool2 = data.bool2;
+    testDataClassFB.byte1 = data.byte1;
+    testDataClassFB.byte2 = data.byte2;
+    testDataClassFB.char1 = data.char1;
+    testDataClassFB.char2 = data.char2;
+    testDataClassFB.short1 = data.short1;
+    testDataClassFB.short2 = data.short2;
+    testDataClassFB.int1 = data.int1;
+    testDataClassFB.int2 = data.int2;
+    testDataClassFB.long1 = data.long1;
+    testDataClassFB.long2 = data.long2;
+    testDataClassFB.float1 = data.float1;
+    testDataClassFB.float2 = data.float2;
+    testDataClassFB.double1 = data.double1;
+    testDataClassFB.double2 = data.double2;
+    testDataClassFB.string1 = data.string1;
+    testDataClassFB.string2 = data.string2;
+    // 1-dim arrays
+    testDataClassFB.boolArray = data.boolArray;
+    testDataClassFB.byteArray = data.byteArray;
+    testDataClassFB.shortArray = data.shortArray;
+    testDataClassFB.intArray = data.intArray;
+    testDataClassFB.longArray = data.longArray;
+    testDataClassFB.floatArray = data.floatArray;
+    testDataClassFB.doubleArray = data.doubleArray;
+    testDataClassFB.stringArray = data.stringArray;
+
+    testDataClassFB.nDimensions = std::vector(data.boolNdimArray.dimensions().begin(), data.boolNdimArray.dimensions().end());
+    testDataClassFB.boolNdimArray = data.boolNdimArray.elements();
+    testDataClassFB.byteNdimArray = data.byteNdimArray.elements();
+    testDataClassFB.shortNdimArray = data.shortNdimArray.elements();
+    testDataClassFB.intNdimArray = data.intNdimArray.elements();
+    testDataClassFB.longNdimArray = data.longNdimArray.elements();
+    testDataClassFB.floatNdimArray = data.floatNdimArray.elements();
+    testDataClassFB.doubleNdimArray = data.doubleNdimArray.elements();
 }
 
-BENCHMARK(protobuf_bench)->Name("Protobuf")->Repetitions(5);
+static void setPocoFromContainer(const fb_bench::TestDataClassFbT &testDataClassFB, TestDataClass &data) {
+    data.bool1 = testDataClassFB.bool1;
+    data.bool2 = testDataClassFB.bool2;
+    data.byte1 = testDataClassFB.byte1;
+    data.byte2 = testDataClassFB.byte2;
+    data.char1 = testDataClassFB.char1;
+    data.char2 = testDataClassFB.char2;
+    data.short1 = testDataClassFB.short1;
+    data.short2 = testDataClassFB.short2;
+    data.int1 = testDataClassFB.int1;
+    data.int2 = testDataClassFB.int2;
+    data.long1 = testDataClassFB.long1;
+    data.long2 = testDataClassFB.long2;
+    data.float1 = testDataClassFB.float1;
+    data.float2 = testDataClassFB.float2;
+    data.double1 = testDataClassFB.double1;
+    data.double2 = testDataClassFB.double2;
+    data.string1 = testDataClassFB.string1;
+    data.string2 = testDataClassFB.string2;
+    // 1-dim arrays
+    data.boolArray = testDataClassFB.boolArray;
+    data.byteArray = testDataClassFB.byteArray;
+    data.shortArray = testDataClassFB.shortArray;
+    data.intArray = testDataClassFB.intArray;
+    data.longArray = testDataClassFB.longArray;
+    data.floatArray = testDataClassFB.floatArray;
+    data.doubleArray = testDataClassFB.doubleArray;
+    data.stringArray = testDataClassFB.stringArray;
+
+    std::array<uint, 3> dims;
+    std::copy_n(testDataClassFB.nDimensions.begin(), 3, dims.begin());
+    data.boolNdimArray.dimensions() = dims;
+    data.boolNdimArray.elements() = testDataClassFB.boolNdimArray;
+    data.byteNdimArray.dimensions() = dims;
+    data.byteNdimArray.elements() = testDataClassFB.byteNdimArray;
+    data.shortNdimArray.dimensions() = dims;
+    data.shortNdimArray.elements() = testDataClassFB.shortNdimArray;
+    data.intNdimArray.dimensions() = dims;
+    data.intNdimArray.elements() = testDataClassFB.intNdimArray;
+    data.longNdimArray.dimensions() = dims;
+    data.longNdimArray.elements() = testDataClassFB.longNdimArray;
+    data.floatNdimArray.dimensions() = dims;
+    data.floatNdimArray.elements() = testDataClassFB.floatNdimArray;
+    data.doubleNdimArray.dimensions() = dims;
+    data.doubleNdimArray.elements() = testDataClassFB.doubleNdimArray;
+}
+
+static void capnproto_bench(benchmark::State &state) {
+    static const int N_ARRAY = 1000;
+    // Seed with a real random value, if available
+    std::random_device r;
+    std::default_random_engine e1(r());
+    std::uniform_int_distribution<size_t> randomArrayIndex(0, N_ARRAY - 1);
+
+    size_t dataSize = TestDataClass::get_data_size(N_ARRAY, 0, 0);
+    // generate random input data
+    const TestDataClass dataA(N_ARRAY, 0, 0);    // numeric heavy data <-> equivalent to Java benchmark
+    const TestDataClass dataB(N_ARRAY, 0, 0);    // numeric heavy data <-> equivalent to Java benchmark
+    // received data
+    TestDataClass testData2;
+
+    TestDataClassFbT in{};
+    TestDataClassFbT out{};
+
+    FlatBufferBuilder fbb;
+    size_t size = 0;
+    // benchmark loop
+    int i = 0;
+    for (auto _ : state) {
+        try {
+            i++;
+            fbb.Clear();
+            setContainerFromPoco(in, i % 2 == 0 ? dataA : dataB);
+            fbb.Finish(TestDataClassFb::Pack(fbb, &in));
+            size = fbb.GetSize();
+            auto data = fbb.GetBufferPointer();
+            GetTestDataClassFb(data)->UnPackTo(&out);
+            setPocoFromContainer(out, testData2);
+            // plausibility check
+            auto randomIdx = randomArrayIndex(e1);
+            if ((i % 2 == 0 ? dataA : dataB).doubleArray.at(randomIdx) != testData2.doubleArray.at(randomIdx)) {
+                state.SkipWithError(("double arrays not identical" + std::to_string(randomIdx)).c_str());
+                break;
+            }
+            benchmark::DoNotOptimize(dataA);
+            benchmark::DoNotOptimize(dataB);
+            benchmark::DoNotOptimize(testData2);
+            benchmark::ClobberMemory();
+        } catch (std::exception &e) {
+            state.SkipWithError(
+                    (std::string("caught exception: ") + opencmw::typeName < std::remove_reference_t<decltype(e)>>.
+            data() + e.what()).c_str());
+            break;
+        } catch (...) {
+            state.SkipWithError("unknown exception");
+            break;
+        }
+    }
+    // benchmark loop
+    state.counters["BytesProcessed"] = benchmark::Counter(static_cast<int>(dataSize),
+                                                          benchmark::Counter::kIsIterationInvariantRate,
+                                                          benchmark::Counter::OneK::kIs1024);
+    state.counters["ItemsProcessed"] = benchmark::Counter(1, benchmark::Counter::kIsIterationInvariantRate,
+                                                          benchmark::Counter::OneK::kIs1000);
+    state.counters["wireSize"] = static_cast<int>(size);
+    state.counters["dataSize"] = static_cast<int>(dataSize);
+}
+
+BENCHMARK(capnproto_bench)->Name("Flatbuffers(object api)")->Repetitions(5);
+

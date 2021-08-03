@@ -20,9 +20,10 @@ macro(run_conan)
     mp-units/0.7.0
     protobuf/3.17.1
     capnproto/0.8.0
-    flatbuffers/2.0.0
     opencmw/0.0.1
+    flatbuffers/2.0.0
     flatc/1.12.0 # outputs deprecation warning, but should still be used for flatc: https://github.com/conan-io/conan-center-index/issues/4039
+    # disabled because on nixOS system flatc has to be used
     benchmark/1.5.3
     # refl-cpp/0.12.1 # could be used once there is a new release
     OPTIONS

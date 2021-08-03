@@ -1,12 +1,12 @@
-namespace benchmark;
-
-struct TestDataClass {
+namespace fb_bench;
+// generate with `flatc --cpp --gen-object-api TestDataClass.fbs`
+table TestDataClassFb {
   bool1: bool;
   bool2: bool;
   byte1: byte;
   byte2: byte;
-  char1: ubyte;
-  char2: ubyte;
+  char1: byte;
+  char2: byte;
   short1: int16;
   short2: int16;
   int1: int32;
@@ -29,14 +29,16 @@ struct TestDataClass {
   doubleArray: [double];
   stringArray: [string];
 
-  nDimensions: [int];
+  nDimensions: [uint];
   boolNdimArray: [bool];
-  byteNdimArray: [byte];
+  byteNdimArray: [ubyte];
   shortNdimArray: [int16];
   intNdimArray: [int32];
   longNdimArray : [int64];
   floatNdimArray : [float32];
   doubleNdimArray: [float64];
 
-  nestedData: TestDataClass;
+  nestedData: TestDataClassFb;
 }
+
+root_type TestDataClassFb;

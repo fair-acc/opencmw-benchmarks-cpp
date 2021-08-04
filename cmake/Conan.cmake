@@ -9,8 +9,10 @@ macro(run_conan)
   include(${CMAKE_BINARY_DIR}/conan.cmake)
 
   conan_add_remote(
-    NAME bincrafters
-    URL https://bincrafters.jfrog.io/artifactory/api/conan/public-conan)
+    NAME
+    bincrafters
+    URL
+    https://bincrafters.jfrog.io/artifactory/api/conan/public-conan)
 
   conan_cmake_run(
     REQUIRES
@@ -22,7 +24,8 @@ macro(run_conan)
     capnproto/0.8.0
     opencmw/0.0.1
     flatbuffers/2.0.0
-    flatc/1.12.0 # outputs deprecation warning, but should still be used for flatc: https://github.com/conan-io/conan-center-index/issues/4039
+    flatc/1.12.0 # outputs deprecation warning, but should still be used for flatc:
+                 # https://github.com/conan-io/conan-center-index/issues/4039
     # disabled because on nixOS system flatc has to be used
     benchmark/1.5.3
     # refl-cpp/0.12.1 # could be used once there is a new release

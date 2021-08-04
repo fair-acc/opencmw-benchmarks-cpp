@@ -1,9 +1,9 @@
 #include "../TestDataClass.hpp"
 #include "TestDataClass.pb.h"
 #include <benchmark/benchmark.h>
-#include <vector>
-#include <string>
 #include <random>
+#include <string>
+#include <vector>
 
 static void setContainerFromPoco(protobuf::TestDataClass &protobufContainer, const TestDataClass &data) {
     // primitives
@@ -28,16 +28,16 @@ static void setContainerFromPoco(protobuf::TestDataClass &protobufContainer, con
     // 1-dim arrays
     protobufContainer.mutable_boolarray()->Reserve(data.boolArray.size());
     protobufContainer.mutable_boolarray()->Assign(data.boolArray.begin(), data.boolArray.end());
-    protobufContainer.mutable_intarray()->    Reserve(data.intArray.size());
-    protobufContainer.mutable_intarray()->    Assign(data.intArray.begin(), data.intArray.end());
-    protobufContainer.mutable_longarray()->   Reserve(data.longArray.size());
-    protobufContainer.mutable_longarray()->   Assign(data.longArray.begin(), data.longArray.end());
-    protobufContainer.mutable_floatarray()->  Reserve(data.floatArray.size());
-    protobufContainer.mutable_floatarray()->  Assign(data.floatArray.begin(), data.floatArray.end());
-    protobufContainer.mutable_doublearray()-> Reserve(data.doubleArray.size());
-    protobufContainer.mutable_doublearray()-> Assign(data.doubleArray.begin(), data.doubleArray.end());
-    protobufContainer.mutable_stringarray()-> Reserve(data.stringArray.size());
-    protobufContainer.mutable_stringarray()-> Assign(data.stringArray.begin(), data.stringArray.end());
+    protobufContainer.mutable_intarray()->Reserve(data.intArray.size());
+    protobufContainer.mutable_intarray()->Assign(data.intArray.begin(), data.intArray.end());
+    protobufContainer.mutable_longarray()->Reserve(data.longArray.size());
+    protobufContainer.mutable_longarray()->Assign(data.longArray.begin(), data.longArray.end());
+    protobufContainer.mutable_floatarray()->Reserve(data.floatArray.size());
+    protobufContainer.mutable_floatarray()->Assign(data.floatArray.begin(), data.floatArray.end());
+    protobufContainer.mutable_doublearray()->Reserve(data.doubleArray.size());
+    protobufContainer.mutable_doublearray()->Assign(data.doubleArray.begin(), data.doubleArray.end());
+    protobufContainer.mutable_stringarray()->Reserve(data.stringArray.size());
+    protobufContainer.mutable_stringarray()->Assign(data.stringArray.begin(), data.stringArray.end());
     // n-dim arrays
     protobufContainer.mutable_ndimensions()->Reserve(data.boolNdimArray.dimensions().size());
     protobufContainer.mutable_ndimensions()->Assign(data.boolNdimArray.dimensions().begin(), data.boolNdimArray.dimensions().end());
@@ -67,12 +67,12 @@ static void setPocoFromContainer(const protobuf::TestDataClass &protobufContaine
     // char2   = 'Z';
     // short1  = 20;
     // short2  = -200;
-    data.int1 = protobufContainer.int1();
-    data.int2 = protobufContainer.int2();
-    data.long1 = protobufContainer.long1();
-    data.long2 = protobufContainer.long2();
-    data.float1 = protobufContainer.float1();
-    data.float2 = protobufContainer.float2();
+    data.int1    = protobufContainer.int1();
+    data.int2    = protobufContainer.int2();
+    data.long1   = protobufContainer.long1();
+    data.long2   = protobufContainer.long2();
+    data.float1  = protobufContainer.float1();
+    data.float2  = protobufContainer.float2();
     data.double1 = protobufContainer.double1();
     data.double2 = protobufContainer.double2();
     data.string1 = protobufContainer.string1();
@@ -113,15 +113,15 @@ static void protobuf_bench(benchmark::State &state) {
     auto n_numerals = static_cast<size_t>(state.range(0));
     auto n_strings  = static_cast<size_t>(state.range(1));
     // Seed with a real random value, if available
-    std::random_device r;
-    std::default_random_engine e1(r());
+    std::random_device                    r;
+    std::default_random_engine            e1(r());
     std::uniform_int_distribution<size_t> randomArrayIndex(0, n_numerals - 1);
     std::uniform_int_distribution<size_t> randomStringArrayIndex(0, n_strings - 1);
 
-    size_t dataSize = TestDataClass::get_data_size(n_numerals, n_strings, 0);
+    size_t                                dataSize = TestDataClass::get_data_size(n_numerals, n_strings, 0);
     // generate random input data
-    const TestDataClass dataA(n_numerals, n_strings, 0);    // numeric heavy data <-> equivalent to Java benchmark
-    const TestDataClass dataB(n_numerals, n_strings, 0);    // numeric heavy data <-> equivalent to Java benchmark
+    const TestDataClass dataA(n_numerals, n_strings, 0); // numeric heavy data <-> equivalent to Java benchmark
+    const TestDataClass dataB(n_numerals, n_strings, 0); // numeric heavy data <-> equivalent to Java benchmark
     // received data
     TestDataClass testData2;
 
@@ -130,7 +130,7 @@ static void protobuf_bench(benchmark::State &state) {
     protobuf::TestDataClass recovered;
     // benchmark loop
     std::vector<char> data{};
-    int i = 0;
+    int               i = 0;
     for (auto _ : state) {
         i++;
         // code to benchmark
@@ -166,9 +166,9 @@ static void protobuf_bench(benchmark::State &state) {
         benchmark::ClobberMemory();
     }
     state.counters["BytesProcessed"] = benchmark::Counter(static_cast<int>(dataSize), benchmark::Counter::kIsIterationInvariantRate, benchmark::Counter::OneK::kIs1024);
-    state.counters["wireSize"] = static_cast<int>(data.size());
-    state.counters["dataSize"] = static_cast<int>(dataSize);
+    state.counters["wireSize"]       = static_cast<int>(data.size());
+    state.counters["dataSize"]       = static_cast<int>(dataSize);
     state.counters["ItemsProcessed"] = benchmark::Counter(1, benchmark::Counter::kIsIterationInvariantRate, benchmark::Counter::OneK::kIs1000);
 }
 
-BENCHMARK(protobuf_bench)->Name("Protobuf")->Repetitions(5)->Args({2 << 8, 0})->Args({2 << 10, 0})->Args({2 << 13, 0})->Args({0, 2 << 10});
+BENCHMARK(protobuf_bench)->Name("Protobuf")->Repetitions(5)->Args({ 2 << 8, 0 })->Args({ 2 << 10, 0 })->Args({ 2 << 13, 0 })->Args({ 0, 2 << 10 });

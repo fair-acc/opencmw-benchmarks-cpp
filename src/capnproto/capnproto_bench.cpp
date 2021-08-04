@@ -1,7 +1,7 @@
-#include "TestDataClassCapn.capnp.h"
 #include "../TestDataClass.hpp"
-#include <capnp/serialize.h>
+#include "TestDataClassCapn.capnp.h"
 #include <benchmark/benchmark.h>
+#include <capnp/serialize.h>
 #include <iostream>
 #include <random>
 
@@ -26,12 +26,12 @@ static void setContainerFromPoco(TestDataClassCapn::Builder &protobufContainer, 
     protobufContainer.setString1(data.string1);
     protobufContainer.setString2(data.string2);
     // 1-dim arrays
-    unsigned int n_array = static_cast<unsigned int>(data.boolArray.size());
-    ::capnp::List<bool>::Builder        boolarray   = protobufContainer.initBoolArray(n_array);
-    ::capnp::List<int>::Builder         intarray    = protobufContainer.initIntArray(n_array);
-    ::capnp::List<long>::Builder        longarray   = protobufContainer.initLongArray(n_array);
-    ::capnp::List<float>::Builder       floatarray  = protobufContainer.initFloatArray(n_array);
-    ::capnp::List<double>::Builder      doublearray = protobufContainer.initDoubleArray(n_array);
+    unsigned int                   n_array     = static_cast<unsigned int>(data.boolArray.size());
+    ::capnp::List<bool>::Builder   boolarray   = protobufContainer.initBoolArray(n_array);
+    ::capnp::List<int>::Builder    intarray    = protobufContainer.initIntArray(n_array);
+    ::capnp::List<long>::Builder   longarray   = protobufContainer.initLongArray(n_array);
+    ::capnp::List<float>::Builder  floatarray  = protobufContainer.initFloatArray(n_array);
+    ::capnp::List<double>::Builder doublearray = protobufContainer.initDoubleArray(n_array);
     for (capnp::uint i = 0; i < n_array; i++) {
         boolarray.set(i, data.boolArray[i]);
         intarray.set(i, data.intArray[i]);
@@ -39,23 +39,23 @@ static void setContainerFromPoco(TestDataClassCapn::Builder &protobufContainer, 
         floatarray.set(i, data.floatArray[i]);
         doublearray.set(i, data.doubleArray[i]);
     }
-    unsigned int n_string = static_cast<unsigned int>(data.stringArray.size());
+    unsigned int                        n_string    = static_cast<unsigned int>(data.stringArray.size());
     ::capnp::List<capnp::Text>::Builder stringarray = protobufContainer.initStringArray(n_string);
     for (capnp::uint i = 0; i < n_string; i++) {
         stringarray.set(i, data.stringArray[i]);
     }
     //// n-dim arrays
-    ::capnp::List<int>::Builder         nDimensions     = protobufContainer.initIntArray(3);
+    ::capnp::List<int>::Builder nDimensions = protobufContainer.initIntArray(3);
     nDimensions.set(0, static_cast<int>(data.boolNdimArray.dimensions()[0]));
     nDimensions.set(1, static_cast<int>(data.boolNdimArray.dimensions()[1]));
     nDimensions.set(2, static_cast<int>(data.boolNdimArray.dimensions()[2]));
-    unsigned int nDimSize = data.boolNdimArray.dimensions()[0] * data.boolNdimArray.dimensions()[1] * data.boolNdimArray.dimensions()[2];
-    ::capnp::List<bool>::Builder        boolndimarray   = protobufContainer.initBoolNdimArray(nDimSize);
-    ::capnp::List<uint8_t>::Builder     bytendimarray   = protobufContainer.initByteNdimArray(nDimSize);
-    ::capnp::List<int>::Builder         intndimarray    = protobufContainer.initIntNdimArray(nDimSize);
-    ::capnp::List<long>::Builder        longndimarray   = protobufContainer.initLongNdimArray(nDimSize);
-    ::capnp::List<float>::Builder       floatndimarray  = protobufContainer.initFloatNdimArray(nDimSize);
-    ::capnp::List<double>::Builder      doublendimarray = protobufContainer.initDoubleNdimArray(nDimSize);
+    unsigned int                    nDimSize        = data.boolNdimArray.dimensions()[0] * data.boolNdimArray.dimensions()[1] * data.boolNdimArray.dimensions()[2];
+    ::capnp::List<bool>::Builder    boolndimarray   = protobufContainer.initBoolNdimArray(nDimSize);
+    ::capnp::List<uint8_t>::Builder bytendimarray   = protobufContainer.initByteNdimArray(nDimSize);
+    ::capnp::List<int>::Builder     intndimarray    = protobufContainer.initIntNdimArray(nDimSize);
+    ::capnp::List<long>::Builder    longndimarray   = protobufContainer.initLongNdimArray(nDimSize);
+    ::capnp::List<float>::Builder   floatndimarray  = protobufContainer.initFloatNdimArray(nDimSize);
+    ::capnp::List<double>::Builder  doublendimarray = protobufContainer.initDoubleNdimArray(nDimSize);
     for (capnp::uint i = 0; i < nDimSize; i++) {
         boolndimarray.set(i, data.boolNdimArray.elements()[i]);
         bytendimarray.set(i, data.byteNdimArray.elements()[i]);
@@ -75,12 +75,12 @@ static void setPocoFromContainer(const TestDataClassCapn::Reader &protobufContai
     // char2   = 'Z';
     // short1  = 20;
     // short2  = -200;
-    data.int1 = protobufContainer.getInt1();
-    data.int2 = protobufContainer.getInt2();
-    data.long1 = protobufContainer.getLong1();
-    data.long2 = protobufContainer.getLong2();
-    data.float1 = protobufContainer.getFloat1();
-    data.float2 = protobufContainer.getFloat2();
+    data.int1    = protobufContainer.getInt1();
+    data.int2    = protobufContainer.getInt2();
+    data.long1   = protobufContainer.getLong1();
+    data.long2   = protobufContainer.getLong2();
+    data.float1  = protobufContainer.getFloat1();
+    data.float2  = protobufContainer.getFloat2();
     data.double1 = protobufContainer.getDouble1();
     data.double2 = protobufContainer.getDouble2();
     data.string1 = protobufContainer.getString1();
@@ -121,34 +121,34 @@ static void capnproto_bench(benchmark::State &state) {
     auto n_numerals = static_cast<size_t>(state.range(0));
     auto n_strings  = static_cast<size_t>(state.range(1));
     // Seed with a real random value, if available
-    std::random_device r;
-    std::default_random_engine e1(r());
+    std::random_device                    r;
+    std::default_random_engine            e1(r());
     std::uniform_int_distribution<size_t> randomArrayIndex(0, n_numerals - 1);
     std::uniform_int_distribution<size_t> randomStringArrayIndex(0, n_strings - 1);
 
-    size_t dataSize = TestDataClass::get_data_size(n_numerals, n_strings, 0);
+    size_t                                dataSize = TestDataClass::get_data_size(n_numerals, n_strings, 0);
     // generate random input data
-    const TestDataClass dataA(n_numerals, n_strings, 0);    // numeric heavy data <-> equivalent to Java benchmark
-    const TestDataClass dataB(n_numerals, n_strings, 0);    // numeric heavy data <-> equivalent to Java benchmark
+    const TestDataClass dataA(n_numerals, n_strings, 0); // numeric heavy data <-> equivalent to Java benchmark
+    const TestDataClass dataB(n_numerals, n_strings, 0); // numeric heavy data <-> equivalent to Java benchmark
     // received data
     TestDataClass testData2;
 
-    size_t size = 0;
+    size_t        size = 0;
     // benchmark loop
     int i = 0;
     for (auto _ : state) {
         try {
             i++;
             ::capnp::MallocMessageBuilder message_builder{};
-            TestDataClassCapn::Builder testClass = message_builder.initRoot<TestDataClassCapn>();
+            TestDataClassCapn::Builder    testClass = message_builder.initRoot<TestDataClassCapn>();
             setContainerFromPoco(testClass, i % 2 == 0 ? dataA : dataB);
-            auto dataOrig = ::capnp::messageToFlatArray(message_builder);
-            auto data = dataOrig.asChars();
-            char * data_array = data.begin();
-            size = data.size();
-            kj::ArrayPtr<capnp::word> received_array = kj::ArrayPtr<capnp::word>(reinterpret_cast<capnp::word*>(data_array), size/sizeof(capnp::word));
+            auto  dataOrig                                 = ::capnp::messageToFlatArray(message_builder);
+            auto  data                                     = dataOrig.asChars();
+            char *data_array                               = data.begin();
+            size                                           = data.size();
+            kj::ArrayPtr<capnp::word>       received_array = kj::ArrayPtr<capnp::word>(reinterpret_cast<capnp::word *>(data_array), size / sizeof(capnp::word));
             ::capnp::FlatArrayMessageReader message_receiver_builder(received_array);
-            auto messageReceiver = message_receiver_builder.getRoot<TestDataClassCapn>();
+            auto                            messageReceiver = message_receiver_builder.getRoot<TestDataClassCapn>();
             setPocoFromContainer(messageReceiver, testData2);
             // plausibility check
             auto randomIdx = randomArrayIndex(e1);
@@ -176,8 +176,8 @@ static void capnproto_bench(benchmark::State &state) {
     // benchmark loop
     state.counters["BytesProcessed"] = benchmark::Counter(static_cast<int>(dataSize), benchmark::Counter::kIsIterationInvariantRate, benchmark::Counter::OneK::kIs1024);
     state.counters["ItemsProcessed"] = benchmark::Counter(1, benchmark::Counter::kIsIterationInvariantRate, benchmark::Counter::OneK::kIs1000);
-    state.counters["wireSize"] = static_cast<int>(size);
-    state.counters["dataSize"] = static_cast<int>(dataSize);
+    state.counters["wireSize"]       = static_cast<int>(size);
+    state.counters["dataSize"]       = static_cast<int>(dataSize);
 }
 
-BENCHMARK(capnproto_bench)->Name("CapnProto")->Repetitions(5)->Args({2 << 8, 0})->Args({2 << 10, 0})->Args({2 << 13, 0})->Args({0, 2 << 10});
+BENCHMARK(capnproto_bench)->Name("CapnProto")->Repetitions(5)->Args({ 2 << 8, 0 })->Args({ 2 << 10, 0 })->Args({ 2 << 13, 0 })->Args({ 0, 2 << 10 });

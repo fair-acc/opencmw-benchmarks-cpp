@@ -3,9 +3,9 @@
 #ifndef OPENCMW_CPP_IOCLASSSERIALISERBENCHMARK_H
 #define OPENCMW_CPP_IOCLASSSERIALISERBENCHMARK_H
 #include <numeric>
-#include <random>
-#include <opencmw/opencmw.hpp>
 #include <opencmw/MultiArray.hpp>
+#include <opencmw/opencmw.hpp>
+#include <random>
 
 using opencmw::MultiArray;
 using std::array;
@@ -195,37 +195,37 @@ struct TestDataClass {
             boolArray.resize(static_cast<std::size_t>(nSizePrimitives));
             std::generate(boolArray.begin(), boolArray.end(), [&]() { return e1() % 2 == 0; });
             byteArray.resize(static_cast<std::size_t>(nSizePrimitives));
-            std::generate(byteArray.begin(), byteArray.end(), [&]() {return static_cast<uint8_t>(e1()); });
+            std::generate(byteArray.begin(), byteArray.end(), [&]() { return static_cast<uint8_t>(e1()); });
             // charArray.resize(static_cast<std::size_t>(nSizePrimitives));
             // std::generate(charArray.begin(), charArray.end(), [&](){return static_cast<uint_8t>(e1()); });
             shortArray.resize(static_cast<std::size_t>(nSizePrimitives));
-            std::generate(shortArray.begin(), shortArray.end(), [&]() {return static_cast<short>(e1()); });
+            std::generate(shortArray.begin(), shortArray.end(), [&]() { return static_cast<short>(e1()); });
             intArray.resize(static_cast<std::size_t>(nSizePrimitives));
-            std::generate(intArray.begin(), intArray.end(), [&]() {return static_cast<int>(e1()); });
+            std::generate(intArray.begin(), intArray.end(), [&]() { return static_cast<int>(e1()); });
             longArray.resize(static_cast<std::size_t>(nSizePrimitives));
-            std::generate(longArray.begin(), longArray.end(), [&]() {return static_cast<long>(e1()); });
+            std::generate(longArray.begin(), longArray.end(), [&]() { return static_cast<long>(e1()); });
             floatArray.resize(static_cast<std::size_t>(nSizePrimitives));
-            std::generate(floatArray.begin(), floatArray.end(), [&]() {return static_cast<float>(e1()); });
+            std::generate(floatArray.begin(), floatArray.end(), [&]() { return static_cast<float>(e1()); });
             doubleArray.resize(static_cast<std::size_t>(nSizePrimitives));
-            std::generate(doubleArray.begin(), doubleArray.end(), [&]() {return static_cast<double>(e1()); });
+            std::generate(doubleArray.begin(), doubleArray.end(), [&]() { return static_cast<double>(e1()); });
 
             // allocate n-dim arrays -- N.B. for simplicity the dimension/low-level backing size is const
-            boolNdimArray = MultiArray<uint8_t , 3>({2,3,2});
+            boolNdimArray = MultiArray<uint8_t, 3>({ 2, 3, 2 });
             std::generate(boolNdimArray.elements().begin(), boolNdimArray.elements().end(), [&]() { return e1() % 2 == 0; });
-            byteNdimArray = MultiArray<uint8_t , 3>({2,3,2});
-            std::generate(byteNdimArray.elements().begin(), byteNdimArray.elements().end(), [&]() {return static_cast<uint8_t>(e1()); });
+            byteNdimArray = MultiArray<uint8_t, 3>({ 2, 3, 2 });
+            std::generate(byteNdimArray.elements().begin(), byteNdimArray.elements().end(), [&]() { return static_cast<uint8_t>(e1()); });
             // charNdimArray.resize(static_cast<std::size_t>(nMultiDim));
             // std::generate(charNdimArray.begin(), charNdimArray.end(), []() {return static_cast<uint8_t>(e1()); });
-            shortNdimArray = MultiArray<short, 3>({2,3,2});
-            std::generate(shortNdimArray.elements().begin(), shortNdimArray.elements().end(), [&]() {return static_cast<short>(e1()); });
-            intNdimArray = MultiArray<int, 3>({2,3,2});
-            std::generate(intNdimArray.elements().begin(), intNdimArray.elements().end(), [&]() {return static_cast<int>(e1()); });
-            longNdimArray = MultiArray<long, 3>({2,3,2});
-            std::generate(longNdimArray.elements().begin(), longNdimArray.elements().end(), [&]() {return static_cast<long>(e1()); });
-            floatNdimArray = MultiArray<float, 3>({2,3,2});
-            std::generate(floatNdimArray.elements().begin(), floatNdimArray.elements().end(), [&]() {return static_cast<float>(e1()); });
-            doubleNdimArray = MultiArray<double, 3>({2,3,2});
-            std::generate(doubleNdimArray.elements().begin(), doubleNdimArray.elements().end(), [&]() {return static_cast<double>(e1()); });
+            shortNdimArray = MultiArray<short, 3>({ 2, 3, 2 });
+            std::generate(shortNdimArray.elements().begin(), shortNdimArray.elements().end(), [&]() { return static_cast<short>(e1()); });
+            intNdimArray = MultiArray<int, 3>({ 2, 3, 2 });
+            std::generate(intNdimArray.elements().begin(), intNdimArray.elements().end(), [&]() { return static_cast<int>(e1()); });
+            longNdimArray = MultiArray<long, 3>({ 2, 3, 2 });
+            std::generate(longNdimArray.elements().begin(), longNdimArray.elements().end(), [&]() { return static_cast<long>(e1()); });
+            floatNdimArray = MultiArray<float, 3>({ 2, 3, 2 });
+            std::generate(floatNdimArray.elements().begin(), floatNdimArray.elements().end(), [&]() { return static_cast<float>(e1()); });
+            doubleNdimArray = MultiArray<double, 3>({ 2, 3, 2 });
+            std::generate(doubleNdimArray.elements().begin(), doubleNdimArray.elements().end(), [&]() { return static_cast<double>(e1()); });
         }
         if (nSizeString > 0) {
             for (size_t i = 0; i < nSizeString; i++) {
@@ -238,7 +238,7 @@ struct TestDataClass {
     static size_t get_data_size(const size_t nSizePrimitives = 0, const size_t nSizeString = 0, const int nestedClassRecursion = 0) {
         size_t dataSize = 0;
         if (nestedClassRecursion > 0) {
-            dataSize += get_data_size(nSizePrimitives+1, nSizeString+1, nestedClassRecursion-1);
+            dataSize += get_data_size(nSizePrimitives + 1, nSizeString + 1, nestedClassRecursion - 1);
         }
         dataSize += 2 * sizeof(bool);
         dataSize += 2 * sizeof(int8_t);

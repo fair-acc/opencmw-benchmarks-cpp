@@ -1,7 +1,7 @@
 #include "../TestDataClass.hpp"
+#include <benchmark/benchmark.h>
 #include <opencmw/IoClassSerialiser.hpp>
 #include <opencmw/Utils.hpp>
-#include <benchmark/benchmark.h>
 #include <random>
 
 using namespace opencmw;
@@ -16,21 +16,21 @@ static void opencmw_bench(benchmark::State &state) {
     auto n_numerals = static_cast<size_t>(state.range(0));
     auto n_strings  = static_cast<size_t>(state.range(1));
     // Seed with a real random value, if available
-    std::random_device r;
-    std::default_random_engine e1(r());
+    std::random_device                    r;
+    std::default_random_engine            e1(r());
     std::uniform_int_distribution<size_t> randomArrayIndex(0, n_numerals - 1);
     std::uniform_int_distribution<size_t> randomStringArrayIndex(0, n_strings - 1);
 
-    size_t dataSize = TestDataClass::get_data_size(n_numerals, n_strings, 0);
+    size_t                                dataSize = TestDataClass::get_data_size(n_numerals, n_strings, 0);
     // generate random input data
-    const TestDataClass dataA(n_numerals, n_strings, 0);    // numeric heavy data <-> equivalent to Java benchmark
-    const TestDataClass dataB(n_numerals, n_strings, 0);    // numeric heavy data <-> equivalent to Java benchmark
+    const TestDataClass dataA(n_numerals, n_strings, 0); // numeric heavy data <-> equivalent to Java benchmark
+    const TestDataClass dataB(n_numerals, n_strings, 0); // numeric heavy data <-> equivalent to Java benchmark
     // received data
     TestDataClass testData2;
 
     // buffer for storage
-    IoBuffer      buffer;
-    int i = 0;
+    IoBuffer buffer;
+    int      i = 0;
     for (auto _ : state) {
         i++;
         buffer.clear();
@@ -66,8 +66,8 @@ static void opencmw_bench(benchmark::State &state) {
     }
     state.counters["BytesProcessed"] = benchmark::Counter(static_cast<int>(dataSize), benchmark::Counter::kIsIterationInvariantRate, benchmark::Counter::OneK::kIs1024);
     state.counters["ItemsProcessed"] = benchmark::Counter(1, benchmark::Counter::kIsIterationInvariantRate, benchmark::Counter::OneK::kIs1000);
-    state.counters["wireSize"] = static_cast<int>(buffer.size());
-    state.counters["dataSize"] = static_cast<int>(dataSize);
+    state.counters["wireSize"]       = static_cast<int>(buffer.size());
+    state.counters["dataSize"]       = static_cast<int>(dataSize);
 }
 
-BENCHMARK(opencmw_bench)->Name("OpenCMW")->Repetitions(5)->Args({2 << 8, 0})->Args({2 << 10, 0})->Args({2 << 13, 0})->Args({0, 2 << 10});
+BENCHMARK(opencmw_bench)->Name("OpenCMW")->Repetitions(5)->Args({ 2 << 8, 0 })->Args({ 2 << 10, 0 })->Args({ 2 << 13, 0 })->Args({ 0, 2 << 10 });

@@ -36,6 +36,8 @@ static void setContainerFromPoco(protobuf::TestDataClass &protobufContainer, con
     protobufContainer.mutable_floatarray()->  Assign(data.floatArray.begin(), data.floatArray.end());
     protobufContainer.mutable_doublearray()-> Reserve(data.doubleArray.size());
     protobufContainer.mutable_doublearray()-> Assign(data.doubleArray.begin(), data.doubleArray.end());
+    protobufContainer.mutable_stringarray()-> Reserve(data.stringArray.size());
+    protobufContainer.mutable_stringarray()-> Assign(data.stringArray.begin(), data.stringArray.end());
     // n-dim arrays
     protobufContainer.mutable_ndimensions()->Reserve(data.boolNdimArray.dimensions().size());
     protobufContainer.mutable_ndimensions()->Assign(data.boolNdimArray.dimensions().begin(), data.boolNdimArray.dimensions().end());
@@ -86,6 +88,8 @@ static void setPocoFromContainer(const protobuf::TestDataClass &protobufContaine
     std::copy(protobufContainer.floatarray().begin(), protobufContainer.floatarray().end(), data.floatArray.begin());
     data.doubleArray.resize(protobufContainer.doublearray_size());
     std::copy(protobufContainer.doublearray().begin(), protobufContainer.doublearray().end(), data.doubleArray.begin());
+    data.stringArray.resize(protobufContainer.stringarray_size());
+    std::copy(protobufContainer.stringarray().begin(), protobufContainer.stringarray().end(), data.stringArray.begin());
     // N-dim arrays
     std::copy(protobufContainer.ndimensions().begin(), protobufContainer.ndimensions().end(), data.boolNdimArray.dimensions().begin());
     std::copy(protobufContainer.ndimensions().begin(), protobufContainer.ndimensions().end(), data.intNdimArray.dimensions().begin());
@@ -106,16 +110,18 @@ static void setPocoFromContainer(const protobuf::TestDataClass &protobufContaine
 }
 
 static void protobuf_bench(benchmark::State &state) {
-    static const int N_ARRAY = 1000;
+    auto n_numerals = static_cast<size_t>(state.range(0));
+    auto n_strings  = static_cast<size_t>(state.range(1));
     // Seed with a real random value, if available
     std::random_device r;
     std::default_random_engine e1(r());
-    std::uniform_int_distribution<size_t> randomArrayIndex(0, N_ARRAY-1);
+    std::uniform_int_distribution<size_t> randomArrayIndex(0, n_numerals - 1);
+    std::uniform_int_distribution<size_t> randomStringArrayIndex(0, n_strings - 1);
 
-    size_t dataSize = TestDataClass::get_data_size(N_ARRAY, 0, 0);
+    size_t dataSize = TestDataClass::get_data_size(n_numerals, n_strings, 0);
     // generate random input data
-    TestDataClass dataA(N_ARRAY, 0, 0);    // numeric heavy data <-> equivalent to Java benchmark
-    TestDataClass dataB(N_ARRAY, 0, 0);    // numeric heavy data <-> equivalent to Java benchmark
+    const TestDataClass dataA(n_numerals, n_strings, 0);    // numeric heavy data <-> equivalent to Java benchmark
+    const TestDataClass dataB(n_numerals, n_strings, 0);    // numeric heavy data <-> equivalent to Java benchmark
     // received data
     TestDataClass testData2;
 
@@ -134,10 +140,15 @@ static void protobuf_bench(benchmark::State &state) {
         testClass.SerializeToArray(data.data(), static_cast<int>(len));
         recovered.ParseFromArray(data.data(), len);
         setPocoFromContainer(recovered, testData2);
-        auto randomIdx = randomArrayIndex(e1);
         try {
-            if ((i % 2 == 0 ? dataA : dataB).doubleArray.at(randomIdx) != testData2.doubleArray.at(randomIdx)) {
+            auto randomIdx = randomArrayIndex(e1);
+            if (n_numerals > 0 && (i % 2 == 0 ? dataA : dataB).doubleArray.at(randomIdx) != testData2.doubleArray.at(randomIdx)) {
                 state.SkipWithError(("double arrays not identical" + std::to_string(randomIdx)).c_str());
+                break;
+            }
+            auto randomStringIdx = randomStringArrayIndex(e1);
+            if (n_strings > 0 && (i % 2 == 0 ? dataA : dataB).stringArray.at(randomStringIdx) != testData2.stringArray.at(randomStringIdx)) {
+                state.SkipWithError(("string arrays not identical" + std::to_string(randomStringIdx)).c_str());
                 break;
             }
         } catch (std::exception &e) {
@@ -160,4 +171,4 @@ static void protobuf_bench(benchmark::State &state) {
     state.counters["ItemsProcessed"] = benchmark::Counter(1, benchmark::Counter::kIsIterationInvariantRate, benchmark::Counter::OneK::kIs1000);
 }
 
-BENCHMARK(protobuf_bench)->Name("Protobuf")->Repetitions(5);
+BENCHMARK(protobuf_bench)->Name("Protobuf")->Repetitions(5)->Args({2 << 8, 0})->Args({2 << 10, 0})->Args({2 << 13, 0})->Args({0, 2 << 10});

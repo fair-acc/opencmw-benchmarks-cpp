@@ -20,8 +20,8 @@ table TestDataClassFb {
   string1: string;
   string2: string;
 
-  boolArray: [bool];
-  byteArray: [byte];
+  boolArray: [uint8];
+  byteArray: [byte]; // use uint8 instead of bool because of bool container specialisation
   shortArray: [int16];
   intArray: [int32];
   longArray: [int64];
@@ -30,7 +30,7 @@ table TestDataClassFb {
   stringArray: [string];
 
   nDimensions: [uint];
-  boolNdimArray: [bool];
+  boolNdimArray: [uint8]; // use uint8 instead of bool because of bool container specialisation
   byteNdimArray: [ubyte];
   shortNdimArray: [int16];
   intNdimArray: [int32];

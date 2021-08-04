@@ -35,8 +35,8 @@ struct TestDataClass {
     string string2;
 
     // 1-dim arrays
-    vector<bool> boolArray;
-    vector<int8_t>  byteArray;
+    vector<uint8_t> boolArray;
+    vector<int8_t>  byteArray; // use uint8 instead of bool because of bool container specialisation
     // vector<int8_t> charArray;
     vector<int16_t> shortArray;
     vector<int32_t> intArray;
@@ -46,7 +46,7 @@ struct TestDataClass {
     vector<string>  stringArray;
 
     // generic n-dim arrays - N.B. striding-arrays: low-level format is the same except of 'nDimension' descriptor
-    MultiArray<bool, 3>    boolNdimArray;
+    MultiArray<uint8_t, 3> boolNdimArray; // use uint8 instead of bool because of bool container specialisation
     MultiArray<uint8_t, 3> byteNdimArray;
     MultiArray<int16_t, 3> shortNdimArray;
     MultiArray<int32_t, 3> intNdimArray;
@@ -62,7 +62,7 @@ struct TestDataClass {
      * @param nSizeString size of String[] array (smaller 0: do not initialise fields/allocate arrays)
      * @param nestedClassRecursion how many nested sub-classes should be allocated
      */
-    TestDataClass(const int nSizePrimitives = -1, const int nSizeString = -1, const int nestedClassRecursion = -1) {
+    TestDataClass(const size_t nSizePrimitives = 0, const size_t nSizeString = 0, const int nestedClassRecursion = -1) {
         if (nestedClassRecursion > 0) {
             nestedData = std::make_unique<TestDataClass>(TestDataClass(nSizePrimitives, nSizeString, nestedClassRecursion - 1));
             nestedData->init(nSizePrimitives + 1, nSizeString + 1); //N.B. '+1' to have different sizes for nested classes
@@ -165,12 +165,12 @@ struct TestDataClass {
         // nestedData = null;
     }
 
-    void init(const int nSizePrimitives, const int nSizeString) {
+    void init(const size_t nSizePrimitives, const size_t nSizeString) {
         // Seed with a real random value, if available
         std::random_device r;
         // Choose a random mean between 1 and 6
         std::default_random_engine e1(r());
-        if (nSizePrimitives >= 0) {
+        if (nSizePrimitives > 0) {
             bool1   = true;
             bool2   = false;
             byte1   = 10;
@@ -210,7 +210,7 @@ struct TestDataClass {
             std::generate(doubleArray.begin(), doubleArray.end(), [&]() {return static_cast<double>(e1()); });
 
             // allocate n-dim arrays -- N.B. for simplicity the dimension/low-level backing size is const
-            boolNdimArray = MultiArray<bool, 3>({2,3,2});
+            boolNdimArray = MultiArray<uint8_t , 3>({2,3,2});
             std::generate(boolNdimArray.elements().begin(), boolNdimArray.elements().end(), [&]() { return e1() % 2 == 0; });
             byteNdimArray = MultiArray<uint8_t , 3>({2,3,2});
             std::generate(byteNdimArray.elements().begin(), byteNdimArray.elements().end(), [&]() {return static_cast<uint8_t>(e1()); });
@@ -227,18 +227,18 @@ struct TestDataClass {
             doubleNdimArray = MultiArray<double, 3>({2,3,2});
             std::generate(doubleNdimArray.elements().begin(), doubleNdimArray.elements().end(), [&]() {return static_cast<double>(e1()); });
         }
-        if (nSizeString >= 0) {
-            for (int i = 0; i < nSizeString; i++) {
-                stringArray.emplace_back(string1);
+        if (nSizeString > 0) {
+            for (size_t i = 0; i < nSizeString; i++) {
+                stringArray.emplace_back(string1 + std::to_string(e1()));
             }
         } else {
             stringArray.clear();
         }
     }
-    static size_t get_data_size(const int nSizePrimitives = -1, const int nSizeString = -1, const int nestedClassRecursion = -1) {
+    static size_t get_data_size(const size_t nSizePrimitives = 0, const size_t nSizeString = 0, const int nestedClassRecursion = 0) {
         size_t dataSize = 0;
         if (nestedClassRecursion > 0) {
-            dataSize += get_data_size(nSizePrimitives, nSizeString, nestedClassRecursion-1);
+            dataSize += get_data_size(nSizePrimitives+1, nSizeString+1, nestedClassRecursion-1);
         }
         dataSize += 2 * sizeof(bool);
         dataSize += 2 * sizeof(int8_t);
@@ -253,16 +253,16 @@ struct TestDataClass {
         auto string2 = std::string("Γειά σου Κόσμε!");
         dataSize += string2.size();
 
-        dataSize += static_cast<size_t>(nSizePrimitives) * sizeof(uint8_t); // bool arrays are special
-        dataSize += static_cast<size_t>(nSizePrimitives) * sizeof(int8_t);
-        dataSize += static_cast<size_t>(nSizePrimitives) * sizeof(short);
-        dataSize += static_cast<size_t>(nSizePrimitives) * sizeof(int);
-        dataSize += static_cast<size_t>(nSizePrimitives) * sizeof(long);
-        dataSize += static_cast<size_t>(nSizePrimitives) * sizeof(float);
-        dataSize += static_cast<size_t>(nSizePrimitives) * sizeof(double);
+        dataSize += nSizePrimitives * sizeof(uint8_t); // bool arrays are special
+        dataSize += nSizePrimitives * sizeof(int8_t);
+        dataSize += nSizePrimitives * sizeof(short);
+        dataSize += nSizePrimitives * sizeof(int);
+        dataSize += nSizePrimitives * sizeof(long);
+        dataSize += nSizePrimitives * sizeof(float);
+        dataSize += nSizePrimitives * sizeof(double);
 
         if (nSizeString > 0) {
-            throw std::invalid_argument("string contents not implemented");
+            dataSize += (string1.size() + 1) * nSizeString;
         }
 
         // multi dim data left as default content

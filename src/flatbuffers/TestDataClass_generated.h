@@ -32,7 +32,7 @@ struct TestDataClassFbT : public flatbuffers::NativeTable {
   double double2;
   std::string string1;
   std::string string2;
-  std::vector<bool> boolArray;
+  std::vector<uint8_t> boolArray;
   std::vector<int8_t> byteArray;
   std::vector<int16_t> shortArray;
   std::vector<int32_t> intArray;
@@ -41,7 +41,7 @@ struct TestDataClassFbT : public flatbuffers::NativeTable {
   std::vector<double> doubleArray;
   std::vector<std::string> stringArray;
   std::vector<uint32_t> nDimensions;
-  std::vector<bool> boolNdimArray;
+  std::vector<uint8_t> boolNdimArray;
   std::vector<uint8_t> byteNdimArray;
   std::vector<int16_t> shortNdimArray;
   std::vector<int32_t> intNdimArray;
@@ -598,7 +598,7 @@ inline void TestDataClassFb::UnPackTo(TestDataClassFbT *_o, const flatbuffers::r
   { auto _e = double2(); _o->double2 = _e; }
   { auto _e = string1(); if (_e) _o->string1 = _e->str(); }
   { auto _e = string2(); if (_e) _o->string2 = _e->str(); }
-  { auto _e = boolArray(); if (_e) { _o->boolArray.resize(_e->size()); for (flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->boolArray[_i] = _e->Get(_i) != 0; } } }
+  { auto _e = boolArray(); if (_e) { _o->boolArray.resize(_e->size()); for (flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->boolArray[_i] = _e->Get(_i); } } }
   { auto _e = byteArray(); if (_e) { _o->byteArray.resize(_e->size()); for (flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->byteArray[_i] = _e->Get(_i); } } }
   { auto _e = shortArray(); if (_e) { _o->shortArray.resize(_e->size()); for (flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->shortArray[_i] = _e->Get(_i); } } }
   { auto _e = intArray(); if (_e) { _o->intArray.resize(_e->size()); for (flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->intArray[_i] = _e->Get(_i); } } }
@@ -607,7 +607,7 @@ inline void TestDataClassFb::UnPackTo(TestDataClassFbT *_o, const flatbuffers::r
   { auto _e = doubleArray(); if (_e) { _o->doubleArray.resize(_e->size()); for (flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->doubleArray[_i] = _e->Get(_i); } } }
   { auto _e = stringArray(); if (_e) { _o->stringArray.resize(_e->size()); for (flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->stringArray[_i] = _e->Get(_i)->str(); } } }
   { auto _e = nDimensions(); if (_e) { _o->nDimensions.resize(_e->size()); for (flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->nDimensions[_i] = _e->Get(_i); } } }
-  { auto _e = boolNdimArray(); if (_e) { _o->boolNdimArray.resize(_e->size()); for (flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->boolNdimArray[_i] = _e->Get(_i) != 0; } } }
+  { auto _e = boolNdimArray(); if (_e) { _o->boolNdimArray.resize(_e->size()); for (flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->boolNdimArray[_i] = _e->Get(_i); } } }
   { auto _e = byteNdimArray(); if (_e) { _o->byteNdimArray.resize(_e->size()); for (flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->byteNdimArray[_i] = _e->Get(_i); } } }
   { auto _e = shortNdimArray(); if (_e) { _o->shortNdimArray.resize(_e->size()); for (flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->shortNdimArray[_i] = _e->Get(_i); } } }
   { auto _e = intNdimArray(); if (_e) { _o->intNdimArray.resize(_e->size()); for (flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->intNdimArray[_i] = _e->Get(_i); } } }

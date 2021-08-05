@@ -6,7 +6,8 @@
 static void memcpy_bench(benchmark::State &state) {
     auto n_numerals = static_cast<size_t>(state.range(0));
     auto n_strings  = static_cast<size_t>(state.range(1));
-    auto N_ARRAY    = (TestDataClass::get_data_size(n_numerals, n_strings, 0));
+    auto n_nested = static_cast<int>(state.range(1));
+    auto N_ARRAY    = (TestDataClass::get_data_size(n_numerals, n_strings, n_nested));
     // Seed with a real random value, if available
     std::random_device                    r;
     std::default_random_engine            e1(r());
@@ -41,4 +42,4 @@ static void memcpy_bench(benchmark::State &state) {
     state.counters["ItemsProcessed"] = benchmark::Counter(1, benchmark::Counter::kIsIterationInvariantRate, benchmark::Counter::OneK::kIs1000);
 }
 
-BENCHMARK(memcpy_bench)->Name("memcpy(Benchmark)")->Repetitions(5)->Args({ 2 << 8, 0 })->Args({ 2 << 10, 0 })->Args({ 2 << 13, 0 })->Args({ 0, 2 << 10 });
+BENCHMARK(memcpy_bench)->Name("memcpy(Benchmark)")->Repetitions(3)->Args({ 10000, 0, 0 })->Args({ 10, 100, 1 })->ArgsProduct({{256, 512, 1024, 2048, 4096, 8192}, {0}, {0}});

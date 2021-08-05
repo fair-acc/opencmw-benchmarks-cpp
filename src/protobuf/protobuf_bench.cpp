@@ -56,6 +56,11 @@ static void setContainerFromPoco(protobuf::TestDataClass &protobufContainer, con
 
     protobufContainer.mutable_doublendimarray()->Reserve(data.doubleNdimArray.elements().size());
     protobufContainer.mutable_doublendimarray()->Assign(data.doubleNdimArray.elements().begin(), data.doubleNdimArray.elements().end());
+
+    if (data.nestedData) {
+        protobuf::TestDataClass testClass = protobufContainer.nesteddata();
+        setContainerFromPoco(testClass, *(data.nestedData));
+    }
 }
 
 static void setPocoFromContainer(const protobuf::TestDataClass &protobufContainer, TestDataClass &data) {
@@ -107,21 +112,28 @@ static void setPocoFromContainer(const protobuf::TestDataClass &protobufContaine
     std::copy(protobufContainer.floatndimarray().begin(), protobufContainer.floatndimarray().end(), data.floatNdimArray.elements().begin());
     data.doubleNdimArray.elements().resize(protobufContainer.doublendimarray_size());
     std::copy(protobufContainer.doublendimarray().begin(), protobufContainer.doublendimarray().end(), data.doubleNdimArray.elements().begin());
+
+    if (protobufContainer.has_nesteddata()) {
+        auto nested = protobufContainer.nesteddata();
+        data.nestedData = std::unique_ptr<TestDataClass>(new TestDataClass{});
+        setPocoFromContainer(nested, *(data.nestedData));
+    }
 }
 
 static void protobuf_bench(benchmark::State &state) {
     auto n_numerals = static_cast<size_t>(state.range(0));
     auto n_strings  = static_cast<size_t>(state.range(1));
+    auto n_nesting = static_cast<int>(state.range(2));
     // Seed with a real random value, if available
     std::random_device                    r;
     std::default_random_engine            e1(r());
     std::uniform_int_distribution<size_t> randomArrayIndex(0, n_numerals - 1);
     std::uniform_int_distribution<size_t> randomStringArrayIndex(0, n_strings - 1);
 
-    size_t                                dataSize = TestDataClass::get_data_size(n_numerals, n_strings, 0);
+    size_t                                dataSize = TestDataClass::get_data_size(n_numerals, n_strings, n_nesting);
     // generate random input data
-    const TestDataClass dataA(n_numerals, n_strings, 0); // numeric heavy data <-> equivalent to Java benchmark
-    const TestDataClass dataB(n_numerals, n_strings, 0); // numeric heavy data <-> equivalent to Java benchmark
+    const TestDataClass dataA(n_numerals, n_strings, n_nesting); // numeric heavy data <-> equivalent to Java benchmark
+    const TestDataClass dataB(n_numerals, n_strings, n_nesting); // numeric heavy data <-> equivalent to Java benchmark
     // received data
     TestDataClass testData2;
 
@@ -171,4 +183,4 @@ static void protobuf_bench(benchmark::State &state) {
     state.counters["ItemsProcessed"] = benchmark::Counter(1, benchmark::Counter::kIsIterationInvariantRate, benchmark::Counter::OneK::kIs1000);
 }
 
-BENCHMARK(protobuf_bench)->Name("Protobuf")->Repetitions(5)->Args({ 2 << 8, 0 })->Args({ 2 << 10, 0 })->Args({ 2 << 13, 0 })->Args({ 0, 2 << 10 });
+BENCHMARK(protobuf_bench)->Name("Protobuf")->Repetitions(3)->Args({ 10000, 0, 0 })->Args({ 10, 100, 1 })->ArgsProduct({{256, 512, 1024, 2048, 4096, 8192}, {0}, {0}});

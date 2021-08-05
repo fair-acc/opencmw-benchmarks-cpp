@@ -45,6 +45,11 @@ static void setContainerFromPoco(fb_bench::TestDataClassFbT &testDataClassFB, co
     testDataClassFB.longNdimArray   = data.longNdimArray.elements();
     testDataClassFB.floatNdimArray  = data.floatNdimArray.elements();
     testDataClassFB.doubleNdimArray = data.doubleNdimArray.elements();
+
+    if (data.nestedData) {
+        testDataClassFB.nestedData = std::unique_ptr<TestDataClassFbT>(new TestDataClassFbT{});
+        setContainerFromPoco(*(testDataClassFB.nestedData), *(data.nestedData));
+    }
 }
 
 static void setPocoFromContainer(const fb_bench::TestDataClassFbT &testDataClassFB, TestDataClass &data) {
@@ -92,11 +97,17 @@ static void setPocoFromContainer(const fb_bench::TestDataClassFbT &testDataClass
     data.floatNdimArray.elements()    = testDataClassFB.floatNdimArray;
     data.doubleNdimArray.dimensions() = dims;
     data.doubleNdimArray.elements()   = testDataClassFB.doubleNdimArray;
+
+    if (testDataClassFB.nestedData) {
+        data.nestedData = std::unique_ptr<TestDataClass>(new TestDataClass{});
+        setPocoFromContainer(*(testDataClassFB.nestedData), *(data.nestedData));
+    }
 }
 
 static void capnproto_bench(benchmark::State &state) {
     auto n_numerals = static_cast<size_t>(state.range(0));
     auto n_strings  = static_cast<size_t>(state.range(1));
+    auto n_nesting = static_cast<int>(state.range(2));
     // Seed with a real random value, if available
     std::random_device                    r;
     std::default_random_engine            e1(r());
@@ -105,8 +116,8 @@ static void capnproto_bench(benchmark::State &state) {
 
     size_t                                dataSize = TestDataClass::get_data_size(n_numerals, n_strings, 0);
     // generate random input data
-    const TestDataClass dataA(n_numerals, n_strings, 0); // numeric heavy data <-> equivalent to Java benchmark
-    const TestDataClass dataB(n_numerals, n_strings, 0); // numeric heavy data <-> equivalent to Java benchmark
+    const TestDataClass dataA(n_numerals, n_strings, n_nesting); // numeric heavy data <-> equivalent to Java benchmark
+    const TestDataClass dataB(n_numerals, n_strings, n_nesting); // numeric heavy data <-> equivalent to Java benchmark
     // received data
     TestDataClass     testData2;
 
@@ -161,4 +172,4 @@ static void capnproto_bench(benchmark::State &state) {
     state.counters["dataSize"]       = static_cast<int>(dataSize);
 }
 
-BENCHMARK(capnproto_bench)->Name("Flatbuffers(object api)")->Repetitions(5)->Args({ 2 << 8, 0 })->Args({ 2 << 10, 0 })->Args({ 2 << 13, 0 })->Args({ 0, 2 << 10 });
+BENCHMARK(capnproto_bench)->Name("Flatbuffers(object api)")->Repetitions(3)->Args({ 10000, 0, 0 })->Args({ 10, 100, 1 })->ArgsProduct({{256, 512, 1024, 2048, 4096, 8192}, {0}, {0}});

@@ -1,8 +1,8 @@
 # Serialiser benchmarks
 
 Small cmake project which compares the performance of different open source c++ serialisation implementations.
-As always with benchmarks, this is highly subjective and tailored to a specific use case.
 This benchmark compares serialising a user-supplied object into a byte buffer and back.
+This is in line with the design [rationales for the opencmw serialiser](https://github.com/fair-acc/opencmw-cpp/blob/main/docs/IoSerialiser.md).
 
 Compares the following projects:
 - memcpy: baseline benchmark, which copies a char array of the size of the user data back and forth.
@@ -57,6 +57,12 @@ build/bin/bench --help
 You might have to [disable frequency scaling](https://github.com/google/benchmark#disabling-cpu-frequency-scaling) if googlebench complains about it.
 
 ## Example output
+
+```bash
+build/bin/bench --benchmark_display_aggregates_only=true --benchmark_out=results.csv --benchmark_out_format=csv --benchmark_counters_tabular=true --^Cnchmark_color=true && octave plotResults.m
+```
+
+![benchmark results](./results.svg)
 
 ```
 $ build/bin/bench --benchmark_display_aggregates_only=true  --benchmark_counters_tabular=true --benchmark_color=true

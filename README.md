@@ -62,6 +62,7 @@ You might have to [disable frequency scaling](https://github.com/google/benchmar
 build/bin/bench --benchmark_display_aggregates_only=true --benchmark_out=results.csv --benchmark_out_format=csv --benchmark_counters_tabular=true --^Cnchmark_color=true && octave plotResults.m
 ```
 
+![benchmark results relative](./resultsRelative.svg)
 ![benchmark results](./results.svg)
 
 ```

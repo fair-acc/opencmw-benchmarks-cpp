@@ -36,9 +36,9 @@ static void opencmw_bench(benchmark::State &state) {
         i++;
         try {
             buffer.clear();
-            opencmw::serialise<YaS, false>(buffer, i % 2 == 0 ? dataA : dataB, false);
+            opencmw::serialise<YaS, false>(buffer, i % 2 == 0 ? dataA : dataB);
             buffer.reset();
-            opencmw::deserialise<YaS, ProtocolCheck::IGNORE>(buffer, testData2);
+            opencmw::deserialise<YaS, ProtocolCheck::LENIENT>(buffer, testData2);
             //opencmw::deserialise<YaS, ProtocolCheck::LENIENT>(buffer, testData2);
             auto randomIdx = randomArrayIndex(e1);
             if (n_numerals > 0 && (i % 2 == 0 ? dataA : dataB).doubleArray.at(randomIdx) != testData2.doubleArray.at(randomIdx)) {
@@ -51,7 +51,10 @@ static void opencmw_bench(benchmark::State &state) {
                 break;
             }
         } catch (std::exception &e) {
-            state.SkipWithError((std::string("caught exception: ") + typeName<std::remove_reference_t<decltype(e)>>.data()).c_str());
+            state.SkipWithError((std::string("exception: ") + typeName<std::remove_reference_t<decltype(e)>>.data() + std::string(": ") + e.what()).c_str());
+            break;
+        } catch (opencmw::ProtocolException &e) {
+            state.SkipWithError((std::string("ProtocolException: ") + typeName<std::remove_reference_t<decltype(e)>>.data() + std::string(": ") + std::string(e.what())).c_str());
             break;
         } catch (...) {
             state.SkipWithError("unknown exception");

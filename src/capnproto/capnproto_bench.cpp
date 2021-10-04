@@ -137,7 +137,7 @@ static void capnproto_bench(benchmark::State &state) {
     std::uniform_int_distribution<size_t> randomArrayIndex(0, n_numerals - 1);
     std::uniform_int_distribution<size_t> randomStringArrayIndex(0, n_strings - 1);
 
-    size_t                                dataSize = TestDataClass::get_data_size(n_numerals, n_strings, 0);
+    size_t                                dataSize = TestDataClass::get_data_size(n_numerals, n_strings, n_nesting);
     // generate random input data
     const TestDataClass dataA(n_numerals, n_strings, n_nesting); // numeric heavy data <-> equivalent to Java benchmark
     const TestDataClass dataB(n_numerals, n_strings, n_nesting); // numeric heavy data <-> equivalent to Java benchmark
@@ -191,4 +191,4 @@ static void capnproto_bench(benchmark::State &state) {
     state.counters["dataSize"]       = static_cast<int>(dataSize);
 }
 
-BENCHMARK(capnproto_bench)->Name("CapnProto")->Repetitions(3)->Args({ 10000, 0, 0 })->Args({ 10, 100, 1 })->ArgsProduct({{256, 512, 1024, 2048, 4096, 8192}, {0}, {0}});
+BENCHMARK(capnproto_bench)->Name("CapnProto")->Repetitions(3)->Args({ 1000, 0, 0 })->Args({ 10, 100, 1 })->ArgsProduct({{256, 512, 1024, 2048, 4096, 8192}, {0}, {0}});

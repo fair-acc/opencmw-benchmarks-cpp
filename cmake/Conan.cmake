@@ -24,6 +24,7 @@ macro(run_conan)
     capnproto/0.8.0
     opencmw/0.0.1
     flatbuffers/2.0.0
+    simdjson/1.0.0
     flatc/1.12.0 # outputs deprecation warning, but should still be used for flatc:
                  # https://github.com/conan-io/conan-center-index/issues/4039
     # disabled because on nixOS system flatc has to be used

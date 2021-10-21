@@ -9,10 +9,8 @@ macro(run_conan)
   include(${CMAKE_BINARY_DIR}/conan.cmake)
 
   conan_add_remote(
-    NAME
-    bincrafters
-    URL
-    https://bincrafters.jfrog.io/artifactory/api/conan/public-conan)
+    NAME conan-center
+    URL https://center.conan.io)
 
   conan_cmake_run(
     REQUIRES
